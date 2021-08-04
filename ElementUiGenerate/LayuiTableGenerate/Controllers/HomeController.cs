@@ -175,6 +175,25 @@ namespace LayuiTableGenerate.Controllers
             }
             , methods: {
                 handleCurrentChange: function () {
+                },
+                getTableList() {
+                    ajax.get('/handler/JsonApi.ashx', {
+                        params:
+                        {
+                            targetFunction: 'AmazonADReportAPI|GetAmazonReportViewList',
+                            data: JSON.stringify(this.query)
+                        }
+                    }).then((res) => {
+                        this.tableLoading = false;
+                        if (res.bodyText.includes('Error')) {
+                            console.log(res);
+                            this.$message.error(res.bodyText);
+                        }
+                        else {
+                            this.tableData = res.data;
+                        }
+                    }, (res) => {
+                    });
                 }
             }
             , updated() {
