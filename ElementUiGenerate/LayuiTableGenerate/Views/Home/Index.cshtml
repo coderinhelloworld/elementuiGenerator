@@ -28,8 +28,8 @@
         <div class="layui-input-block">
             <select name="dbType" lay-verify="required">
                 <option value=""></option>
-                <option value="0">mysql</option>
-                <option selected value="1">sqlserver</option>
+                <option  selected value="0">mysql</option>
+                <option  value="1">sqlserver</option>
             </select>
         </div>
     </div>
@@ -79,6 +79,9 @@
 </script>
 <script type="text/html" id="SearchFormCheckbox">
     <input type="checkbox" name="SearchForm" value="{{d.SearchForm}}"  lay-skin="switch" lay-text="on|off" title="启用" lay-filter="enableSearchForm" {{ d.SearchForm == false ?'':'checked' }}>
+</script>
+<script type="text/html" id="ShowInTableForm">
+    <input type="checkbox" name="SearchForm" value="{{d.ShowInTable}}"  lay-skin="switch" lay-text="on|off" title="启用" lay-filter="ShowInTableForm" {{ d.ShowInTable == false ?'':'checked' }}>
 </script>
 <script type="text/html" id="InputType" >
     <select name="InputType" value="{{d.InputType}}" lay-filter="typeForm" >
@@ -141,11 +144,12 @@
                 , page: true
                 , limit: 10
                 , cols: [[
-                    { type: 'checkbox' }
-                    , { field: 'ColumnTitle', title: '字段' }
+                    //{ type: 'checkbox' }
+                    { field: 'ColumnTitle', title: '字段' }
                     , { field: 'ColumnDes', title: '表名描述', edit: true }
                     , { field: 'InputForm', title: '新增需要的字段',  templet: "#InputFormCheckbox" }
                     , { field: 'SearchForm', title: '搜索需要的字段', templet:"#SearchFormCheckbox" }
+                    , { field: 'ShowInTable', title: '需要展示在Table', templet:"#ShowInTableForm" }
                     , { field: 'InputType', title: '类型', templet:"#InputType" }
                     //, { field: 'inputForm', title: '表单输入展示', templet: '<div><div class="layui-table-cell laytable-cell-44-0-0 laytable-cell-checkbox"><input type="checkbox" name="layTableCheckbox" lay-skin="primary"><div class="layui-unselect layui-form-checkbox" lay-skin="primary"><i class="layui-icon layui-icon-ok"></i></div></div></div>' }
                     //, { field: 'tableShow', title: '表单呈现展示', templet: '<div><div class="layui-table-cell laytable-cell-44-0-0 laytable-cell-checkbox"><input type="checkbox" name="layTableCheckbox" lay-skin="primary"><div class="layui-unselect layui-form-checkbox" lay-skin="primary"><i class="layui-icon layui-icon-ok"></i></div></div></div>' }
@@ -169,6 +173,13 @@
             var data = layui.table.cache.tableSetting[index];
             data.SearchForm = onoff;
         });
+        layui.form.on('switch(ShowInTableForm)', function (obj) {
+            var onoff = this.checked ? true : false;
+            //方法二取数据 （根据索引table.cache里面的行数据）
+            var index = obj.othis.parents('tr').attr("data-index");
+            var data = layui.table.cache.tableSetting[index];
+            data.ShowInTable = onoff;
+        });
         layui.form.on('select(typeForm)', function (obj) {            
             //方法二取数据 （根据索引table.cache里面的行数据）
             var index = obj.othis.parents('tr').attr("data-index");
@@ -182,6 +193,8 @@
             var loading = layer.load(0);
             $.ajax({
                 url: "/home/CreateTable2",
+                type: 'POST',
+                dataType: 'json',
                 data: "columns=" +JSON.stringify(layui.table.cache.tableSetting),
                 success: function (data) {
                     $("#html").text(data);

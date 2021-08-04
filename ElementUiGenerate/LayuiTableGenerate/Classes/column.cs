@@ -10,6 +10,8 @@ namespace LayuiTableGenerate.Classes
         public string ColumnTitle { get; set; }
 
         public string ColumnDes { get; set; }
+        public bool ShowInTable { get; set; }
+
 
 
         public bool  InputForm { get; set; } = false;
