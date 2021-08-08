@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml'>
+<head runat='server'>
+    <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+    <title></title>
+    <link href='../../css/element-ui.css' rel='stylesheet' />
+    <style>
+        .el-table thead, .el-table {
+            color: #333;
+        }
+
+        .el-header {
+            padding: 0 0px;
+        }
+
+        .el-form-item--mini.el-form-item, .el-form-item--small.el-form-item {
+            margin-bottom: 10px;
+        }
+
+        .el-dialog__header {
+            border-bottom: 1px solid #ebebeb;
+            background-color: #F8F8F8;
+        }
+
+        .el-card__body {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id='app'>
+        <el-container v-loading.fullscreen.lock='fullscreenLoading'>
+            <el-header style='height:auto'>
+                <%--查询界面--%>
+                <div>
+                    <el-form :inline='true' @@keyup.enter.native='getReportStatus(1)'>
+                       {{queryItems}}
+                    </el-form>
+                </div>
+            </el-header>
+            <el-row :gutter='10' style='margin-left:0px'>
+               {{extraFuntions}}
+            </el-row>
+            <%--表格界面--%>
+            <el-card class='box-card' style='margin-top:10px'>
+                <template>
+                    <el-table :data='{{tableName}}Table.data' style='width: 100%' border element-loading-background='rgba(0, 0, 0, 0.1)' :header-cell-style='{background:' #eef1f6',color:'#606266'}' element-loading-text='Loading' element-loading-spinner='el-icon-loading'>
+                       {{tableColumns}}
+                    </el-table>
+                    <el-pagination style='margin-top:10px' :page-size='query.pageSize' @@current -change='handleCurrentChange' :current-page.sync='query.pageIndex' background layout='total,prev, pager, next' :total='{{tableName}}Table.total'></el-pagination>
+                </template>
+            </el-card>
+        </el-container>
+    </div>
+    <script src='../../Scripts/vue.js'></script>
+    <script src='../../Scripts/element-ui.js'></script>
+    <script src='../../Scripts/vue-resource.min.js'></script>
+    <script>
+        Vue.prototype.$ELEMENT = { size: 'small', zIndex: 3000 };
+        var app = new Vue({
+            el: '#app'
+            , data: {
+                fullscreenLoading: false,
+                {{ tableName}}Table: {
+                    data: [{
+                        date: '2016-05-02',
+                        name: '王小虎',
+                        address: '上海市普陀区金沙江路 1518 弄'
+                    }, {
+                        date: '2016-05-04',
+                        name: '王小虎',
+                        address: '上海市普陀区金沙江路 1517 弄'
+                    }, {
+                        date: '2016-05-01',
+                        name: '王小虎',
+                        address: '上海市普陀区金沙江路 1519 弄'
+                    }, {
+                        date: '2016-05-03',
+                        name: '王小虎',
+                        address: '上海市普陀区金沙江路 1516 弄'
+                    }],
+                    total: 0
+                },
+                query: {
+                    pageSize: 10,
+                        {{queryItems}}
+                },
+                pickerOptions: {
+                    shortcuts: [{
+                        text: '最近一周',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }, {
+                        text: '上一个月',
+                        onClick(picker) {
+                            const start = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
+                            const end = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+                            end.setDate(end.getDate() - 1);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }, {
+                        text: '这个月',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }]
+                },
+            }
+            , mounted() {
+            }
+            , methods: {
+                handleCurrentChange: function () {
+                },
+                getTableList() {
+                    ajax.get('/handler/JsonApi.ashx', {  
+                        params:
+                        {
+                            targetFunction: 'AmazonADReportAPI|GetAmazonReportViewList',
+                            data: JSON.stringify(this.query)
+                        }
+                    }).then((res) => {
+                        this.tableLoading = false;
+                        if (res.bodyText.includes('Error')) {
+                            console.log(res);
+                            this.$message.error(res.bodyText);
+                        }
+                        else {
+                            this.tableData = res.data;
+                        }
+                    }, (res) => {
+                    });
+                }
+            }
+            , updated() {
+            }
+        });
+    </script>
+</body>
+</html>

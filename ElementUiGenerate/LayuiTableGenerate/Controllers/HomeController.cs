@@ -30,6 +30,16 @@ namespace LayuiTableGenerate.Controllers
             };
             return View();
         }
+        public IActionResult Test2()
+        {
+
+            var list = GetDataBaseHelper.GetMenuList();
+            var page = new LayuiPage
+            {
+                Body = "",
+            };
+            return View();
+        }
         enum SearchType{
             Input=1,
             Date=2,
@@ -445,6 +455,11 @@ namespace LayuiTableGenerate.Controllers
         public IActionResult KnowledgeTypeList()
         {
             var list = GetDataBaseHelper.GetKnowledgeTypeList();
+            return Json(new { code = 0, msg = "", count = 20, data = list });
+        } 
+        public IActionResult GetMenuList()
+        {
+            var list = GetDataBaseHelper.GetMenuList();
             return Json(new { code = 0, msg = "", count = 20, data = list });
         }
 

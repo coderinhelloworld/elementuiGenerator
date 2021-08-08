@@ -1,4 +1,5 @@
 ﻿using LayuiTableGenerate.Classes;
+using LayuiTableGenerate.Model;
 using ServiceStack;
 using ServiceStack.OrmLite;
 using ServiceStack.OrmLite.Dapper;
@@ -76,6 +77,21 @@ namespace LayuiTableGenerate.Repository
             }
             return null;
         }
+
+
+
+        public static List<Menu> GetMenuList()
+        {
+
+            var dbFactory = new OrmLiteConnectionFactory("Database=AmazonAffiliate;Data Source=8.141.54.190;Port=3306;User Id=root;Password=Mykey1234.;Charset=utf8;TreatTinyAsBoolean=false;", MySqlDialect.Provider);
+            using (var db = dbFactory.Open())
+            {
+                var list = db.Select<Menu>().Where(x => x.ID > 0).ToList();
+                return list;
+            }
+
+        }
+
 
         public static List<Knowledgetype> GetKnowledgeTypeList()
         {

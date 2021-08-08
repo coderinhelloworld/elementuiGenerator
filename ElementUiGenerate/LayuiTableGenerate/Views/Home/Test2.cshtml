@@ -1,0 +1,163 @@
+﻿
+
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml'>
+<head runat="server">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <link crossorigin="anonymous" integrity="sha512-WYzwsHxfl8+qirF4V9ZyFULDBwxvm1kuCHlSd1F57JwALyQMxeq7j1blj4Y7pmP9r0tVMk7GYUI5xLDB7QIZCA==" href="https://lib.baomitu.com/element-ui/2.15.3/theme-chalk/index.min.css" rel="stylesheet">
+    <style>
+        .el-table thead, .el-table {
+            color: #333;
+        }
+
+        .el-header {
+            padding: 0 0px;
+        }
+
+        .el-form-item--mini.el-form-item, .el-form-item--small.el-form-item {
+            margin-bottom: 10px;
+        }
+
+        .el-dialog__header {
+            border-bottom: 1px solid #ebebeb;
+            background-color: #F8F8F8;
+        }
+
+        .el-card__body {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <el-container v-loading.fullscreen.lock="fullscreenLoading">
+            <el-header style="height:auto">
+                <el-form :inline="true" @@keyup.enter.native="getReportStatus(1)">
+                    <el-form-item>
+                        <el-date-picker value-format="yyyy-MM-dd" v-model="query.datePeriod" unlink-panels type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :picker-options="pickerOptions">
+                        </el-date-picker>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-select v-model="query.market" placeholder="市场" clearable>
+                            <el-option v-for="(item,index) in query.shopMarkets" :key="index" :label="item" :value="item"> </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-input placeholder="文件名" v-model="query.fileName"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button size="small" type="primary" icon="el-icon-search" @@click="getReportStatus(1)">查询</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-header>
+            <el-row :gutter="10" style="margin-left:0px">
+                <el-button size="small" @@click="showDownloadLayer()" plain>下载报告ID</el-button>
+            </el-row>
+            <el-card class="box-card" style="margin-top:10px">
+                <template>
+                    <el-table :data="promotionTable.data" style="width: 100%" border element-loading-background="rgba(0, 0, 0, 0.1)" :header-cell-style="{background:'#eef1f6',color:'#606266'}" element-loading-text="Loading" element-loading-spinner="el-icon-loading">
+                        <el-table-column :show-overflow-tooltip="true" prop="date" label="修改日期" width="180"></el-table-column>
+                        <el-table-column :show-overflow-tooltip="true" prop="name" label="报告状态"></el-table-column>
+                        <el-table-column :show-overflow-tooltip="true" prop="address" label="报告状态"></el-table-column>
+                        <el-table-column fixed="right" show-summary width="240" label="操作" style="margin:5px">
+                            <el-tooltip class="item" effect="dark" content="删除" placement="top-end">
+                                <el-button size="mini" type="danger" @@click="deleteReport(scope.row)"><i class="el-icon-delete"></i></el-button>
+                            </el-tooltip>
+                            <el-tooltip class="item" effect="dark" content="编辑" placement="top-end">
+                                <el-button size="mini" type="danger" @@click="deleteReport(scope.row)"><i class="el-icon-delete"></i></el-button>
+                            </el-tooltip>
+                        </el-table-column>
+                    </el-table>
+                    <el-pagination style="margin-top:10px" :page-size="query.pageSize" @@current-change="handleCurrentChange" :current-page.sync="query.pageIndex" background layout="total,prev, pager, next" :total="promotionTable.total"></el-pagination>
+                </template>
+            </el-card>
+        </el-container>
+    </div>
+    <script crossorigin="anonymous" integrity="sha512-pSyYzOKCLD2xoGM1GwkeHbdXgMRVsSqQaaUoHskx/HF09POwvow2VfVEdARIYwdeFLbu+2FCOTRYuiyeGxXkEg==" src="https://lib.baomitu.com/vue/2.6.14/vue.js"></script>
+    <script crossorigin="anonymous" integrity="sha512-+mrl1yz9SfyUGXnOiA1ZinMC+NAtmqccFL49hjdNljqBYqopcgRO7LLRd+rK+kmc9+4FG75bBkEhjBaiV3jj8w==" src="https://lib.baomitu.com/element-ui/2.15.3/index.js"></script>
+    <script crossorigin="anonymous" integrity="sha512-SzBVU+C0eJl+4BIg29X72SYgYNUI2bNVVUFfG9eg1g2jOMvBy3w2movesVS0u+IslOgFyRxuVrMrSHcnLPLN+Q==" src="https://lib.baomitu.com/vue-resource/1.5.3/vue-resource.min.js"></script>
+    <script>
+        Vue.prototype.$ELEMENT = { size: 'small', zIndex: 3000 };
+        var app = new Vue({
+            el: '#app'
+            , data: {
+                fullscreenLoading: false,
+                menuTable: {
+                    data: [],
+                    total: 0
+                },
+                query: {
+                    datePeriod: "",
+                    pageSize: 10,
+                    shopMarkets: [1, 2, 3]
+                },
+                pickerOptions: {
+                    shortcuts: [{
+                        text: '最近一周',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }, {
+                        text: '上一个月',
+                        onClick(picker) {
+                            const start = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
+                            const end = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+                            end.setDate(end.getDate() - 1);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }, {
+                        text: '这个月',
+                        onClick(picker) {
+                            const end = new Date();
+                            const start = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+                            picker.$emit('pick', [start, end]);
+                        }
+                    }]
+                },
+            }
+            , mounted() {
+            }
+            , methods: {
+                handleCurrentChange: function () {
+                },
+                getTableList() {
+                    //ajax.get('/handler/JsonApi.ashx', {
+                    //    params:
+                    //    {
+                    //        targetFunction: "AmazonADReportAPI|GetAmazonReportViewList",
+                    //        data: JSON.stringify(this.query)
+                    //    }
+                    //}).then((res) => {
+                    //    this.tableLoading = false;
+                    //    if (res.bodyText.includes("Error")) {
+                    //        console.log(res);
+                    //        this.$message.error(res.bodyText);
+                    //    }
+                    //    else {
+                    //        this.tableData = res.data;
+                    //    }
+                    //}, (res) => {
+                    //});
+                    ajax.get('/home/GetMenuList', { data: {}}).then((res) => {
+                        this.tableLoading = false;
+                        if (res.bodyText.includes("Error")) {
+                            console.log(res);
+                            this.$message.error(res.bodyText);
+                        }
+                        else {
+                            this.menuTable = res.data;
+                        }
+                    }, (res) => {
+                    });
+                }
+            }
+            , updated() {
+            }
+        });
+    </script>
+</body>
+</html>
