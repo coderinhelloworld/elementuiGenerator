@@ -56,7 +56,7 @@
             </el-row>
             <el-card class="box-card" style="margin-top:10px">
                 <template>
-                    <el-table :data="promotionTable.data" style="width: 100%" border element-loading-background="rgba(0, 0, 0, 0.1)" :header-cell-style="{background:'#eef1f6',color:'#606266'}" element-loading-text="Loading" element-loading-spinner="el-icon-loading">
+                    <el-table :data="menuTable.data" style="width: 100%" border element-loading-background="rgba(0, 0, 0, 0.1)" :header-cell-style="{background:'#eef1f6',color:'#606266'}" element-loading-text="Loading" element-loading-spinner="el-icon-loading">
                         <el-table-column :show-overflow-tooltip="true" prop="date" label="修改日期" width="180"></el-table-column>
                         <el-table-column :show-overflow-tooltip="true" prop="name" label="报告状态"></el-table-column>
                         <el-table-column :show-overflow-tooltip="true" prop="address" label="报告状态"></el-table-column>
@@ -69,7 +69,7 @@
                             </el-tooltip>
                         </el-table-column>
                     </el-table>
-                    <el-pagination style="margin-top:10px" :page-size="query.pageSize" @@current-change="handleCurrentChange" :current-page.sync="query.pageIndex" background layout="total,prev, pager, next" :total="promotionTable.total"></el-pagination>
+                    <el-pagination style="margin-top:10px" :page-size="query.pageSize" @@current-change="handleCurrentChange" :current-page.sync="query.pageIndex" background layout="total,prev, pager, next" :total="menuTable.total"></el-pagination>
                 </template>
             </el-card>
         </el-container>
@@ -79,6 +79,7 @@
     <script crossorigin="anonymous" integrity="sha512-SzBVU+C0eJl+4BIg29X72SYgYNUI2bNVVUFfG9eg1g2jOMvBy3w2movesVS0u+IslOgFyRxuVrMrSHcnLPLN+Q==" src="https://lib.baomitu.com/vue-resource/1.5.3/vue-resource.min.js"></script>
     <script>
         Vue.prototype.$ELEMENT = { size: 'small', zIndex: 3000 };
+        var ajax = Vue.$http;
         var app = new Vue({
             el: '#app'
             , data: {
@@ -120,6 +121,7 @@
                 },
             }
             , mounted() {
+                this.getTableList();
             }
             , methods: {
                 handleCurrentChange: function () {
@@ -142,7 +144,7 @@
                     //    }
                     //}, (res) => {
                     //});
-                    ajax.get('/home/GetMenuList', { data: {}}).then((res) => {
+                    ajax.get('/home/GetMenuList', { }).then((res) => {
                         this.tableLoading = false;
                         if (res.bodyText.includes("Error")) {
                             console.log(res);

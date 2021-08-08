@@ -457,6 +457,7 @@ namespace LayuiTableGenerate.Controllers
             var list = GetDataBaseHelper.GetKnowledgeTypeList();
             return Json(new { code = 0, msg = "", count = 20, data = list });
         } 
+        [HttpGet]
         public IActionResult GetMenuList()
         {
             var list = GetDataBaseHelper.GetMenuList();
