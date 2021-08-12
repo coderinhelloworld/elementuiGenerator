@@ -5,14 +5,10 @@ using System.Threading.Tasks;
 
 namespace LayuiTableGenerate.Enum
 {
-    public class Enum
+    public enum FormInputType
     {
-        public enum DbType
-        {
-            MySql=0,
-            SqlServer=1
-        }
-
-
+        Date = 0,
+        Input = 1,
+        Option = 2
     }
 }

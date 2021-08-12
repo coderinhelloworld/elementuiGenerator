@@ -56,6 +56,14 @@ namespace LayuiTableGenerate.Repository
                 {
                     var sql = "select distinct column_name as columnTitle,column_comment as columnDes from information_schema.columns where  table_name = '"+ dbTable + "'";
                     var res = db.Query<column>(sql).ToList();
+
+                    foreach (var item in res)
+                    {
+                        if (item.ColumnDes=="")
+                        {
+                            item.ColumnDes = item.ColumnTitle;
+                        }
+                    }
                     return res;
              
                 }
@@ -71,6 +79,13 @@ namespace LayuiTableGenerate.Repository
                     {
                         var sql2 = "select t.column_name as columnTitle,'' as columnDes   from information_schema.columns t where t.table_name='" + dbTable + "'";
                         res = db.Query<column>(sql2).ToList();
+                    }
+                    foreach (var item in res)
+                    {
+                        if (item.ColumnDes == "")
+                        {
+                            item.ColumnDes = item.ColumnTitle;
+                        }
                     }
                     return res;
                 }

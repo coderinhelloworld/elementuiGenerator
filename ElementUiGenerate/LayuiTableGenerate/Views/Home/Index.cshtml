@@ -86,9 +86,9 @@
 <script type="text/html" id="InputType" >
     <select name="InputType" value="{{d.InputType}}" lay-filter="typeForm" >
         <option selected="selected" value="">请选择</option>
-        <option value="date">date</option>
-        <option value="input">input</option>
-        <option value="option">option</option>
+        <option value="@LayuiTableGenerate.Enum.FormInputType.Date.ToString()">Date</option>
+        <option value="@LayuiTableGenerate.Enum.FormInputType.Input.ToString()">Input</option>
+        <option value="@LayuiTableGenerate.Enum.FormInputType.Option.ToString()">Option</option>
     </select>
 </script>
 
@@ -96,8 +96,9 @@
 <script>
     //Demo
     layui.use(['form', 'table'], function () {
-        var form = layui.form, table = layui.table;
 
+
+        var form = layui.form, table = layui.table;
         //表单取值
         layui.$('#getDataBaseTable').on('click', function () {
             //监听提交
@@ -191,8 +192,9 @@
         //监听提交
         form.on('submit(formDemo)', function (data) {
             var loading = layer.load(0);
+            var tableName = document.getElementsByName("dbTable")[0].value;
             $.ajax({
-                url: "/home/CreateTable2",
+                url: "/home/CreateTable2?tableName=" + tableName,
                 type: 'POST',
                 dataType: 'json',
                 data: "columns=" +JSON.stringify(layui.table.cache.tableSetting),

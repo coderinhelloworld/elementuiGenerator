@@ -18,5 +18,6 @@ namespace LayuiTableGenerate.Classes
 
         public bool SearchForm { get; set; } = false;
         public string InputType { get; set; }
+        public string TableName { get; set; }
     }
 }

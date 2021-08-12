@@ -36,28 +36,18 @@
         <el-container v-loading.fullscreen.lock='fullscreenLoading'>
             <el-header style='height:auto'>
                 <el-form :inline='true' @@keyup.enter.native='getTableList'>
-                    <el-form-item label=''>
-                        <el-date-picker value-format='yyyy-MM-dd' v-model='MenuQuery.UpdateDateTime' unlink-panels type='daterange' range-separator='至' start-placeholder='开始日期' end-placeholder='结束日期' :picker-options='pickerOptions'>
+                    <el-form-item>
+                        <el-date-picker value-format='yyyy-MM-dd' v-model='menuQuery.datePeriod' unlink-panels type='daterange' range-separator='至' start-placeholder='开始日期' end-placeholder='结束日期' :picker-options='pickerOptions'>
                         </el-date-picker>
                     </el-form-item>
-                    <el-form-item label=''>
-                        <el-input placeholder='Title' v-model='MenuQuery.Title'></el-input>
-                    </el-form-item>
-                    <el-form-item label=''>
-                        <el-select v-model='MenuQuery.Icon' placeholder='Icon' clearable>
-                            <el-option v-for='(item,index) in MenuQueryIconOptions' :key='index' :label='item' :value='item'> </el-option>
+                    <el-form-item>
+                        <el-select v-model='menuQuery.shopMarket' placeholder='市场' clearable>
+                            <el-option v-for='(item,index) in shopMarkets' :key='index' :label='item' :value='item'> </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label=''>
-                        <el-input placeholder='Path' v-model='MenuQuery.Path'></el-input>
+                    <el-form-item>
+                        <el-input placeholder='文件名' v-model='menuQuery.fileName'></el-input>
                     </el-form-item>
-                    <el-form-item label=''>
-                        <el-input placeholder='Url' v-model='MenuQuery.Url'></el-input>
-                    </el-form-item>
-                    <el-form-item label=''>
-                        <el-input placeholder='Tree' v-model='MenuQuery.Tree'></el-input>
-                    </el-form-item>
-
                     <el-form-item>
                         <el-button size='small' type='primary' icon='el-icon-search' @@click='getTableList'>查询</el-button>
                     </el-form-item>
@@ -70,13 +60,10 @@
             </el-row>
             <el-card class='box-card' style='margin-top:10px'>
                 <template>
-                    <el-table :data='MenuTable.data' v-loading='MenuTableLoading' style='width: 100%' border element-loading-background='rgba(255, 255, 255, 1)' :header-cell-style='{background:"#eef1f6",color:"#606266"}' element-loading-text='Loading' element-loading-spinner='el-icon-loading'>
+                    <el-table :data='menuTable.data' v-loading='menuTableLoading' style='width: 100%' border element-loading-background='rgba(255, 255, 255, 1)' :header-cell-style="{background:'#eef1f6',color:'#606266'}" element-loading-text='Loading' element-loading-spinner='el-icon-loading'>
+                        <el-table-column :show-overflow-tooltip='true' prop='InsertDateTime' label='修改日期' width='180'></el-table-column>
                         <el-table-column :show-overflow-tooltip='true' prop='Title' label='Title'></el-table-column>
-                        <el-table-column :show-overflow-tooltip='true' prop='Icon' label='Icon'></el-table-column>
-                        <el-table-column :show-overflow-tooltip='true' prop='Path' label='Path'></el-table-column>
                         <el-table-column :show-overflow-tooltip='true' prop='Url' label='Url'></el-table-column>
-                        <el-table-column :show-overflow-tooltip='true' prop='Tree' label='Tree'></el-table-column>
-
                         <el-table-column fixed='right' show-summary width='240' label='操作' style='margin:5px'>
                             <template slot-scope='scope'>
                                 <el-tooltip class='item' effect='dark' content='编辑' placement='top-end'>
@@ -88,31 +75,16 @@
                             </template>
                         </el-table-column>
                     </el-table>
-                    <el-pagination style='margin-top:10px' :page-size='MenuQuery.pageSize' @@current-change='handleCurrentChange' :current-page.sync='MenuQuery.pageIndex' background layout='total,prev, pager, next' :total='MenuTable.total'></el-pagination>
+                    <el-pagination style='margin-top:10px' :page-size='menuQuery.pageSize' @@current-change='handleCurrentChange' :current-page.sync='menuQuery.pageIndex' background layout='total,prev, pager, next' :total='menuTable.total'></el-pagination>
                 </template>
             </el-card>
         </el-container>
         <div>
-            <el-dialog title='编辑或新增' :visible.sync='showAddMenuLayer'>
-                <el-form label-width='80px' :inline='false' :model='MenuRequest' ref='addMenuLayer'>
-                    <el-form-item label='Title'>
-                        <el-input placeholder='Title' v-model='MenuRequest.Title'></el-input>
+            <el-dialog title='获取报告ID' :visible.sync='showAddMenuLayer'>
+                <el-form label-width='80px' :inline='false' :model='menuRequest' ref='addMenuLayer'>
+                    <el-form-item label='活动名称'>
+                        <el-input v-model='menuRequest.title'></el-input>
                     </el-form-item>
-                    <el-form-item label='Icon'>
-                        <el-select v-model='MenuRequest.Icon' placeholder='Icon' clearable>
-                            <el-option v-for='(item,index) in MenuQueryIconOptions' :key='index' :label='item' :value='item'> </el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label='Path'>
-                        <el-input placeholder='Path' v-model='MenuRequest.Path'></el-input>
-                    </el-form-item>
-                    <el-form-item label='Url'>
-                        <el-input placeholder='Url' v-model='MenuRequest.Url'></el-input>
-                    </el-form-item>
-                    <el-form-item label='Tree'>
-                        <el-input placeholder='Tree' v-model='MenuRequest.Tree'></el-input>
-                    </el-form-item>
-
                 </el-form>
                 <div slot='footer' class='dialog-footer'>
                     <el-button type='primary' @@click="submitAddMenuForm('addMenuLayer')">确 认</el-button>
@@ -131,17 +103,21 @@
             el: '#app'
             , data: {
                 fullscreenLoading: false,
-                MenuTableLoading: false,
+                menuTableLoading: false,
                 shopMarkets: [1, 2, 3],
-                MenuTable: {
+                menuTable: {
                     data: [],
                     total: 1
                 },
-                MenuQuery: {
-                    UpdateDateTime: '', Title: '', Icon: '', Path: '', Url: '', Tree: ''
+                menuQuery: {
+                    id: 0,
+                    datePeriod: '',
+                    pageSize: 10,
+                    shopMarket: ''
                 },
-                MenuRequest: {
-                    ID: '', Title: '', Icon: '', Path: '', Url: '', Tree: ''
+                menuRequest: {
+                    id: 0,
+                    title: ''
                 },
                 showAddMenuLayer: false,
                 pickerOptions: {
@@ -196,11 +172,11 @@
             }
             , methods: {
                 handleCurrentChange(val) {
-                    this.MenuQuery.pageIndex = val;
+                    this.menuQuery.pageIndex = val;
                     this.getTableList();
                 },
                 closeAddMenuLayer() {
-                    this.MenuRequest.id = 0;
+                    this.menuRequest.id = 0;
                     this.showAddMenuLayer = false;
                 },
                 deleteMenu(row) {
@@ -209,8 +185,8 @@
                         cancelButtonText: '取消',
                         type: 'warning'
                     }).then(() => {
-                        ajax.post('/Home/DeleteMenu', JSON.stringify(this.MenuRequest)).then((res) => {
-                            this.MenuTableLoading = false;
+                        ajax.post('/Home/DeleteMenu', JSON.stringify(this.menuRequest)).then((res) => {
+                            this.menuTableLoading = false;
                             if (res.bodyText.includes('Error')) {
                                 console.log(res);
                                 this.$message.error(res.bodyText);
@@ -233,17 +209,12 @@
                 },
                 editMenu(row) {
                     this.showAddMenuLayer = true;
-                    this.MenuRequest.ID = row.ID;
-                    this.MenuRequest.Title = row.Title;
-                    this.MenuRequest.Icon = row.Icon;
-                    this.MenuRequest.Path = row.Path;
-                    this.MenuRequest.Url = row.Url;
-                    this.MenuRequest.Tree = row.Tree;
-
+                    this.menuRequest.title = row.Title;
+                    this.menuRequest.id = row.ID;
                 },
                 submitAddMenuForm() {
-                    ajax.post('/home/AddOrUpdateMenu', JSON.stringify(this.MenuRequest)).then((res) => {
-                        this.MenuTableLoading = false;
+                    ajax.post('/home/AddOrUpdateMenu', JSON.stringify(this.menuRequest)).then((res) => {
+                        this.menuTableLoading = false;
                         if (res.bodyText.includes('Error')) {
                             console.log(res);
                             this.$message.error(res.bodyText);
@@ -259,18 +230,18 @@
                     });
                 },
                 getTableList() {
-                    this.MenuTableLoading = true;
-                    ajax.post('/home/GetMenuList', JSON.stringify(this.MenuQuery)).then((res) => {
-                        this.MenuTableLoading = false;
+                    this.menuTableLoading = true;
+                    ajax.post('/home/GetMenuList', JSON.stringify(this.menuQuery)).then((res) => {
+                        this.menuTableLoading = false;
                         if (res.bodyText.includes('Error')) {
                             console.log(res);
                             this.$message.error(res.bodyText);
                         }
                         else {
-                            this.MenuTable.data = res.data.data;
-                            this.MenuTable.total = res.data.count;
+                            this.menuTable.data = res.data.data;
+                            this.menuTable.total = res.data.count;
                         }
-                        this.MenuTableLoading = false;
+                        this.menuTableLoading = false;
                     }, (res) => {
                     });
                 }
