@@ -37,25 +37,35 @@
             <el-header style='height:auto'>
                 <el-form :inline='true' @@keyup.enter.native='getTableList'>
                     <el-form-item label=''>
-                        <el-date-picker value-format='yyyy-MM-dd' v-model='MenuQuery.UpdateDateTime' unlink-panels type='daterange' range-separator='至' start-placeholder='开始日期' end-placeholder='结束日期' :picker-options='pickerOptions'>
+                        <el-date-picker value-format='yyyy-MM-dd' v-model='x_ProductPromotionQuery.StartDate' unlink-panels type='daterange' range-separator='至' start-placeholder='开始日期' end-placeholder='结束日期' :picker-options='pickerOptions'>
                         </el-date-picker>
                     </el-form-item>
                     <el-form-item label=''>
-                        <el-input placeholder='Title' v-model='MenuQuery.Title'></el-input>
+                        <el-input placeholder='促销价' v-model='x_ProductPromotionQuery.PromotionPrice'></el-input>
                     </el-form-item>
                     <el-form-item label=''>
-                        <el-select v-model='MenuQuery.Icon' placeholder='Icon' clearable>
-                            <el-option v-for='(item,index) in MenuQueryIconOptions' :key='index' :label='item' :value='item'> </el-option>
+                        <el-input placeholder='BID' v-model='x_ProductPromotionQuery.BID'></el-input>
+                    </el-form-item>
+                    <el-form-item label=''>
+                        <el-select v-model='x_ProductPromotionQuery.Plateform' placeholder='平台' clearable>
+                            <el-option v-for='(item,index) in x_ProductPromotionQueryPlateformOptions' :key='index' :label='item' :value='item'> </el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item label=''>
-                        <el-input placeholder='Path' v-model='MenuQuery.Path'></el-input>
+                        <el-select v-model='x_ProductPromotionQuery.CountryCode' placeholder='国家' clearable>
+                            <el-option v-for='(item,index) in x_ProductPromotionQueryCountryCodeOptions' :key='index' :label='item' :value='item'> </el-option>
+                        </el-select>
                     </el-form-item>
                     <el-form-item label=''>
-                        <el-input placeholder='Url' v-model='MenuQuery.Url'></el-input>
+                        <el-select v-model='x_ProductPromotionQuery.ShopID' placeholder='店铺名称' clearable>
+                            <el-option v-for='(item,index) in x_ProductPromotionQueryShopIDOptions' :key='index' :label='item' :value='item'> </el-option>
+                        </el-select>
                     </el-form-item>
                     <el-form-item label=''>
-                        <el-input placeholder='Tree' v-model='MenuQuery.Tree'></el-input>
+                        <el-input placeholder='描述' v-model='x_ProductPromotionQuery.Description'></el-input>
+                    </el-form-item>
+                    <el-form-item label=''>
+                        <el-input placeholder='创建人' v-model='x_ProductPromotionQuery.CreateUserId'></el-input>
                     </el-form-item>
 
                     <el-form-item>
@@ -65,58 +75,85 @@
             </el-header>
             <el-row :gutter='10' style='margin-left:0px'>
                 <el-button-group>
-                    <el-button type='primary' @@click='showAddMenuLayer=true' icon='el-icon-plus'>新增</el-button>
+                    <el-button type='primary' @@click='showAddx_ProductPromotionLayer=true' icon='el-icon-plus'>新增</el-button>
                 </el-button-group>
             </el-row>
             <el-card class='box-card' style='margin-top:10px'>
                 <template>
-                    <el-table :data='MenuTable.data' v-loading='MenuTableLoading' style='width: 100%' border element-loading-background='rgba(255, 255, 255, 1)' :header-cell-style='{background:"#eef1f6",color:"#606266"}' element-loading-text='Loading' element-loading-spinner='el-icon-loading'>
-                        <el-table-column :show-overflow-tooltip='true' prop='Title' label='Title'></el-table-column>
-                        <el-table-column :show-overflow-tooltip='true' prop='Icon' label='Icon'></el-table-column>
-                        <el-table-column :show-overflow-tooltip='true' prop='Path' label='Path'></el-table-column>
-                        <el-table-column :show-overflow-tooltip='true' prop='Url' label='Url'></el-table-column>
-                        <el-table-column :show-overflow-tooltip='true' prop='Tree' label='Tree'></el-table-column>
+                    <el-table :data='x_ProductPromotionTable.data' v-loading='x_ProductPromotionTableLoading' style='width: 100%' border element-loading-background='rgba(255, 255, 255, 1)' :header-cell-style='{background:"#eef1f6",color:"#606266"}' element-loading-text='Loading' element-loading-spinner='el-icon-loading'>
+                        <el-table-column :show-overflow-tooltip='true' prop='PromotionPrice' label='促销价'></el-table-column>
+                        <el-table-column :show-overflow-tooltip='true' prop='BID' label='BID'></el-table-column>
+                        <el-table-column :show-overflow-tooltip='true' prop='Plateform' label='平台'></el-table-column>
+                        <el-table-column :show-overflow-tooltip='true' prop='CountryCode' label='国家'></el-table-column>
+                        <el-table-column :show-overflow-tooltip='true' prop='ShopID' label='店铺名称'></el-table-column>
+                        <el-table-column :show-overflow-tooltip='true' prop='Description' label='描述'></el-table-column>
+                        <el-table-column :show-overflow-tooltip='true' prop='Quantity' label='数量'></el-table-column>
+                        <el-table-column :show-overflow-tooltip='true' prop='ModifyTime' label='ModifyTime'></el-table-column>
+                        <el-table-column :show-overflow-tooltip='true' prop='CreateUserId' label='创建人'></el-table-column>
 
                         <el-table-column fixed='right' show-summary width='240' label='操作' style='margin:5px'>
                             <template slot-scope='scope'>
                                 <el-tooltip class='item' effect='dark' content='编辑' placement='top-end'>
-                                    <el-button size='mini' type='success' @@click='editMenu(scope.row)'><i class='el-icon-edit-outline'></i></el-button>
+                                    <el-button size='mini' type='success' @@click='editx_ProductPromotion(scope.row)'><i class='el-icon-edit-outline'></i></el-button>
                                 </el-tooltip>
                                 <el-tooltip class='item' effect='dark' content='删除' placement='top-end'>
-                                    <el-button size='mini' type='danger' @@click='deleteMenu(scope.row)'><i class='el-icon-delete'></i></el-button>
+                                    <el-button size='mini' type='danger' @@click='deletex_ProductPromotion(scope.row)'><i class='el-icon-delete'></i></el-button>
                                 </el-tooltip>
                             </template>
                         </el-table-column>
                     </el-table>
-                    <el-pagination style='margin-top:10px' :page-size='MenuQuery.pageSize' @@current-change='handleCurrentChange' :current-page.sync='MenuQuery.pageIndex' background layout='total,prev, pager, next' :total='MenuTable.total'></el-pagination>
+                    <el-pagination style='margin-top:10px' :page-size='x_ProductPromotionQuery.pageSize' @@current-change='handleCurrentChange' :current-page.sync='x_ProductPromotionQuery.pageIndex' background layout='total,prev, pager, next' :total='x_ProductPromotionTable.total'></el-pagination>
                 </template>
             </el-card>
         </el-container>
         <div>
-            <el-dialog title='编辑或新增' :visible.sync='showAddMenuLayer'>
-                <el-form label-width='80px' :inline='false' :model='MenuRequest' ref='addMenuLayer'>
-                    <el-form-item label='Title'>
-                        <el-input placeholder='Title' v-model='MenuRequest.Title'></el-input>
+            <el-dialog title='编辑或新增' :visible.sync='showAddx_ProductPromotionLayer'>
+                <el-form label-width='80px' :inline='false' :model='x_ProductPromotionRequest' ref='addx_ProductPromotionLayer'>
+                    <el-form-item label='开始时间'>
+                        <el-date-picker value-format='yyyy-MM-dd' v-model='x_ProductPromotionRequest.StartDate' unlink-panels type='daterange' range-separator='至' start-placeholder='开始日期' end-placeholder='结束日期' :picker-options='pickerOptions'>
+                        </el-date-picker>
                     </el-form-item>
-                    <el-form-item label='Icon'>
-                        <el-select v-model='MenuRequest.Icon' placeholder='Icon' clearable>
-                            <el-option v-for='(item,index) in MenuQueryIconOptions' :key='index' :label='item' :value='item'> </el-option>
+                    <el-form-item label='促销价'>
+                        <el-input placeholder='促销价' v-model='x_ProductPromotionRequest.PromotionPrice'></el-input>
+                    </el-form-item>
+                    <el-form-item label='BID'>
+                        <el-input placeholder='BID' v-model='x_ProductPromotionRequest.BID'></el-input>
+                    </el-form-item>
+                    <el-form-item label='平台'>
+                        <el-select v-model='x_ProductPromotionRequest.Plateform' placeholder='平台' clearable>
+                            <el-option v-for='(item,index) in x_ProductPromotionQueryPlateformOptions' :key='index' :label='item' :value='item'> </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label='Path'>
-                        <el-input placeholder='Path' v-model='MenuRequest.Path'></el-input>
+                    <el-form-item label='国家'>
+                        <el-select v-model='x_ProductPromotionRequest.CountryCode' placeholder='国家' clearable>
+                            <el-option v-for='(item,index) in x_ProductPromotionQueryCountryCodeOptions' :key='index' :label='item' :value='item'> </el-option>
+                        </el-select>
                     </el-form-item>
-                    <el-form-item label='Url'>
-                        <el-input placeholder='Url' v-model='MenuRequest.Url'></el-input>
+                    <el-form-item label='店铺名称'>
+                        <el-select v-model='x_ProductPromotionRequest.ShopID' placeholder='店铺名称' clearable>
+                            <el-option v-for='(item,index) in x_ProductPromotionQueryShopIDOptions' :key='index' :label='item' :value='item'> </el-option>
+                        </el-select>
                     </el-form-item>
-                    <el-form-item label='Tree'>
-                        <el-input placeholder='Tree' v-model='MenuRequest.Tree'></el-input>
+                    <el-form-item label='描述'>
+                        <el-input placeholder='描述' v-model='x_ProductPromotionRequest.Description'></el-input>
+                    </el-form-item>
+                    <el-form-item label='数量'>
+                        <el-input placeholder='数量' v-model='x_ProductPromotionRequest.Quantity'></el-input>
+                    </el-form-item>
+                    <el-form-item label='ModifyTime'>
+                        <el-input placeholder='ModifyTime' v-model='x_ProductPromotionRequest.ModifyTime'></el-input>
+                    </el-form-item>
+                    <el-form-item label='ModifyUserId'>
+                        <el-input placeholder='ModifyUserId' v-model='x_ProductPromotionRequest.ModifyUserId'></el-input>
+                    </el-form-item>
+                    <el-form-item label='创建人'>
+                        <el-input placeholder='创建人' v-model='x_ProductPromotionRequest.CreateUserId'></el-input>
                     </el-form-item>
 
                 </el-form>
                 <div slot='footer' class='dialog-footer'>
-                    <el-button type='primary' @@click="submitAddMenuForm('addMenuLayer')">确 认</el-button>
-                    <el-button @@click='closeAddMenuLayer'>取 消</el-button>
+                    <el-button type='primary' @@click="submitAddx_ProductPromotionForm('addx_ProductPromotionLayer')">确 认</el-button>
+                    <el-button @@click='closeAddx_ProductPromotionLayer'>取 消</el-button>
                 </div>
             </el-dialog>
         </div>
@@ -131,19 +168,42 @@
             el: '#app'
             , data: {
                 fullscreenLoading: false,
-                MenuTableLoading: false,
-                shopMarkets: [1, 2, 3],
-                MenuTable: {
+                x_ProductPromotionTableLoading: false,
+                x_ProductPromotionTable: {
                     data: [],
                     total: 1
                 },
-                MenuQuery: {
-                    UpdateDateTime: '', Title: '', Icon: '', Path: '', Url: '', Tree: ''
+                x_ProductPromotionQuery: {
+                    EAN: '',
+                    StartDate: '',
+                    PromotionPrice: '',
+                    BID: '',
+                    Plateform: '',
+                    CountryCode: '',
+                    ShopID: '',
+                    Description: '',
+                    CreateUserId: '',
+                    pageIndex: 1, pageSize: 10
                 },
-                MenuRequest: {
-                    ID: '', Title: '', Icon: '', Path: '', Url: '', Tree: ''
+                x_ProductPromotionRequest: {
+                    MarketPlaceID: '',
+                    EAN: '',
+                    StartDate: '',
+                    PromotionPrice: '',
+                    BID: '',
+                    Plateform: '',
+                    CountryCode: '',
+                    ShopID: '',
+                    Description: '',
+                    Id: '',
+                    Quantity: '',
+                    ModifyTime: '',
+                    ModifyUserId: '',
+                    CreateUserId: '',
+
                 },
-                showAddMenuLayer: false,
+                x_ProductPromotionQueryPlateformOptions: '', x_ProductPromotionQueryPlateformOptions: '', x_ProductPromotionQueryCountryCodeOptions: '', x_ProductPromotionQueryCountryCodeOptions: '', x_ProductPromotionQueryShopIDOptions: '', x_ProductPromotionQueryShopIDOptions: '',
+                showAddx_ProductPromotionLayer: false,
                 pickerOptions: {
                     shortcuts: [
                         {
@@ -196,27 +256,27 @@
             }
             , methods: {
                 handleCurrentChange(val) {
-                    this.MenuQuery.pageIndex = val;
+                    this.x_ProductPromotionQuery.pageIndex = val;
                     this.getTableList();
                 },
-                closeAddMenuLayer() {
-                    this.MenuRequest.id = 0;
-                    this.showAddMenuLayer = false;
+                closeAddx_ProductPromotionLayer() {
+                    this.x_ProductPromotionRequest.id = 0;
+                    this.showAddx_ProductPromotionLayer = false;
                 },
-                deleteMenu(row) {
+                deletex_ProductPromotion(row) {
                     this.$confirm('确认删除?', '提示', {
                         confirmButtonText: '确定',
                         cancelButtonText: '取消',
                         type: 'warning'
                     }).then(() => {
-                        ajax.post('/Home/DeleteMenu', JSON.stringify(this.MenuRequest)).then((res) => {
-                            this.MenuTableLoading = false;
+                        ajax.post('/Home/Deletex_ProductPromotion', JSON.stringify(this.x_ProductPromotionRequest)).then((res) => {
+                            this.x_ProductPromotionTableLoading = false;
                             if (res.bodyText.includes('Error')) {
                                 console.log(res);
                                 this.$message.error(res.bodyText);
                             }
                             else {
-                                this.showAddMenuLayer = false;
+                                this.showAddx_ProductPromotionLayer = false;
                                 this.$message({
                                     message: '成功',
                                     type: 'success'
@@ -231,25 +291,33 @@
                         });
                     });
                 },
-                editMenu(row) {
-                    this.showAddMenuLayer = true;
-                    this.MenuRequest.ID = row.ID;
-                    this.MenuRequest.Title = row.Title;
-                    this.MenuRequest.Icon = row.Icon;
-                    this.MenuRequest.Path = row.Path;
-                    this.MenuRequest.Url = row.Url;
-                    this.MenuRequest.Tree = row.Tree;
+                editx_ProductPromotion(row) {
+                    this.showAddx_ProductPromotionLayer = true;
+                    this.x_ProductPromotionRequest.MarketPlaceID = row.MarketPlaceID;
+                    this.x_ProductPromotionRequest.EAN = row.EAN;
+                    this.x_ProductPromotionRequest.StartDate = row.StartDate;
+                    this.x_ProductPromotionRequest.PromotionPrice = row.PromotionPrice;
+                    this.x_ProductPromotionRequest.BID = row.BID;
+                    this.x_ProductPromotionRequest.Plateform = row.Plateform;
+                    this.x_ProductPromotionRequest.CountryCode = row.CountryCode;
+                    this.x_ProductPromotionRequest.ShopID = row.ShopID;
+                    this.x_ProductPromotionRequest.Description = row.Description;
+                    this.x_ProductPromotionRequest.Id = row.Id;
+                    this.x_ProductPromotionRequest.Quantity = row.Quantity;
+                    this.x_ProductPromotionRequest.ModifyTime = row.ModifyTime;
+                    this.x_ProductPromotionRequest.ModifyUserId = row.ModifyUserId;
+                    this.x_ProductPromotionRequest.CreateUserId = row.CreateUserId;
 
                 },
-                submitAddMenuForm() {
-                    ajax.post('/home/AddOrUpdateMenu', JSON.stringify(this.MenuRequest)).then((res) => {
-                        this.MenuTableLoading = false;
+                submitAddx_ProductPromotionForm() {
+                    ajax.post('/home/AddOrUpdatex_ProductPromotion', JSON.stringify(this.x_ProductPromotionRequest)).then((res) => {
+                        this.x_ProductPromotionTableLoading = false;
                         if (res.bodyText.includes('Error')) {
                             console.log(res);
                             this.$message.error(res.bodyText);
                         }
                         else {
-                            this.showAddMenuLayer = false;
+                            this.showAddx_ProductPromotionLayer = false;
                             this.$message({
                                 message: '成功',
                                 type: 'success'
@@ -259,18 +327,18 @@
                     });
                 },
                 getTableList() {
-                    this.MenuTableLoading = true;
-                    ajax.post('/home/GetMenuList', JSON.stringify(this.MenuQuery)).then((res) => {
-                        this.MenuTableLoading = false;
+                    this.x_ProductPromotionTableLoading = true;
+                    ajax.post('/home/Getx_ProductPromotionList', JSON.stringify(this.x_ProductPromotionQuery)).then((res) => {
+                        this.x_ProductPromotionTableLoading = false;
                         if (res.bodyText.includes('Error')) {
                             console.log(res);
                             this.$message.error(res.bodyText);
                         }
                         else {
-                            this.MenuTable.data = res.data.data;
-                            this.MenuTable.total = res.data.count;
+                            this.x_ProductPromotionTable.data = res.data.data;
+                            this.x_ProductPromotionTable.total = res.data.count;
                         }
-                        this.MenuTableLoading = false;
+                        this.x_ProductPromotionTableLoading = false;
                     }, (res) => {
                     });
                 }

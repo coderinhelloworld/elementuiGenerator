@@ -74,6 +74,8 @@ namespace LayuiTableGenerate.Controllers
 
         public IActionResult CreateTable2(string columns,string tableName)
         {
+
+            tableName = tableName.Substring(0, 1).ToLower() + tableName.Substring(1);
             var settingList = JsonConvert.DeserializeObject<List<column>>(columns);
             var n = 2;
             var html = @"<!DOCTYPE html>
@@ -173,6 +175,7 @@ namespace LayuiTableGenerate.Controllers
                 },
                 {{tableName}}Query: {{tableQueryParams}},
                 {{tableName}}Request: {{tableRequestParams}},
+                {{optionData}}
                 showAdd{{tableName}}Layer: false,
                 pickerOptions: {
                     shortcuts: [
@@ -315,13 +318,14 @@ namespace LayuiTableGenerate.Controllers
             var tableColumns = "";
             var headerCellStyle = "{background:\"#eef1f6\",color:\"#606266\"}";
             var editGiveValue = "";
+            var optionData = "";
 
             foreach (var item in settingList)
             {
                 //搜索的时候
                 if (item.SearchForm)
                 {
-                    tableQueryParams += item.ColumnTitle+":'',";
+                    tableQueryParams += item.ColumnTitle+":''," + "\r\n";
                     if (item.InputType== FormInputType.Date.ToString())
                     {
                         var dateForm=new DateModule(tableName+"Query."+ item.ColumnTitle);
@@ -334,14 +338,16 @@ namespace LayuiTableGenerate.Controllers
                     }
                     if (item.InputType == FormInputType.Option.ToString())
                     {
-                        var optionForm = new OptionModule(tableName + "Query." + item.ColumnTitle,tableName+"Query"+item.ColumnTitle+"Options", item.ColumnDes);
-                        searchForm += optionForm.Value + "\r\n"; 
+                        var optionName = tableName + "Query" + item.ColumnTitle + "Options";
+                        var optionForm = new OptionModule(tableName + "Query." + item.ColumnTitle, optionName, item.ColumnDes);
+                        searchForm += optionForm.Value + "\r\n";
+                        optionData += optionName + ":'',";
                     }
                 }
                 //新增的时候
                 if (item.InputForm)
                 {
-                    tableRequestParams += item.ColumnTitle + ":'',";
+                    tableRequestParams += item.ColumnTitle + ":''," + "\r\n";
                     editGiveValue += "this."+tableName+"Request."+item.ColumnTitle+"=row."+item.ColumnTitle+";"+ "\r\n";
                     if (item.InputType == FormInputType.Date.ToString())
                     {
@@ -355,7 +361,9 @@ namespace LayuiTableGenerate.Controllers
                     }
                     if (item.InputType == FormInputType.Option.ToString())
                     {
-                        var optionForm = new OptionModule(tableName + "Request." + item.ColumnTitle, tableName + "Query" + item.ColumnTitle + "Options", item.ColumnDes,item.ColumnDes);
+                        var optionName = tableName + "Query" + item.ColumnTitle + "Options";
+                        var optionForm = new OptionModule(tableName + "Request." + item.ColumnTitle, optionName, item.ColumnDes,item.ColumnDes);
+                        optionData += optionName + ":'',";
                         addNewDataForm += optionForm.Value + "\r\n"; ;
                     }
                 }
@@ -370,9 +378,8 @@ namespace LayuiTableGenerate.Controllers
 
             }
 
-
-            tableQueryParams = tableQueryParams.TrimEnd(',') + "}";
-            tableRequestParams = tableRequestParams.TrimEnd(',') + "}";
+            tableQueryParams += "pageIndex:1,pageSize:10 " + "\r\n" + "}";
+            tableRequestParams = tableRequestParams.TrimEnd(',')+ "\r\n"+ "}";
 
             html= html.Replace("{{searchForm}}", searchForm);
             html= html.Replace("{{addNewDataForm}}", addNewDataForm);
@@ -382,6 +389,7 @@ namespace LayuiTableGenerate.Controllers
             html =html.Replace("{{tableName}}", tableName);
             html =html.Replace("{{headerCellStyle}}", headerCellStyle);
             html =html.Replace("{{editGiveValue}}", editGiveValue);
+            html =html.Replace("{{optionData}}", optionData);
       
 
 
