@@ -129,8 +129,8 @@ namespace LayuiTableGenerate.Controllers
             </el-row>
             <el-card class='box-card' style='margin-top:10px'>
                 <template>
-                    <el-table :data='{{tableName}}Table.data' v-loading='{{tableName}}TableLoading' style='width: 100%' border element-loading-background='rgba(255, 255, 255, 1)' :header-cell-style='{{headerCellStyle}}' element-loading-text='Loading' element-loading-spinner='el-icon-loading'>
-                                                       {{tableColumns}}
+                    <el-table id='mainTable' :data='{{tableName}}Table.data' v-loading='{{tableName}}TableLoading' style='width: 100%' border element-loading-background='rgba(255, 255, 255, 1)' :header-cell-style='{{headerCellStyle}}' element-loading-text='Loading' element-loading-spinner='el-icon-loading'>
+                                                       { {tableColumns}}
                         <el-table-column fixed='right' show-summary width='240' label='操作' style='margin:5px'>
                             <template slot-scope='scope'>
                                 <el-tooltip class='item' effect='dark' content='编辑' placement='top-end'>
@@ -142,7 +142,7 @@ namespace LayuiTableGenerate.Controllers
                             </template>
                         </el-table-column>
                     </el-table>
-                    <el-pagination style='margin-top:10px' :page-size='{{tableName}}Query.pageSize' @@current-change='handleCurrentChange' :current-page.sync='{{tableName}}Query.pageIndex' background layout='total,prev, pager, next' :total='{{tableName}}Table.total'></el-pagination>
+                    <el-pagination style='margin-top:10px' :page-size='{{tableName}}Query.pageSize' @@current-change='handleCurrentChange'  @@size-change='handleSizeChange' :current-page.sync='{{tableName}}Query.pageIndex' background layout='total,sizes,prev, pager, next, jumper' :total='{{tableName}}Table.total'></el-pagination>
                 </template>
             </el-card>
         </el-container>
@@ -152,7 +152,7 @@ namespace LayuiTableGenerate.Controllers
                     {{addNewDataForm}}
                 </el-form>
                 <div slot='footer' class='dialog-footer'>
-                    <el-button type='primary' @@click="+ "\"submitAdd{{tableName}}Form('add{{tableName}}Layer')\"" + @">确 认</el-button>
+                    <el-button type='primary' @@click=" + "\"submitAdd{{tableName}}Form('add{{tableName}}Layer')\"" + @">确 认</el-button>
                     <el-button @@click='closeAdd{{tableName}}Layer'>取 消</el-button>
                 </div>
             </el-dialog>
@@ -169,6 +169,7 @@ namespace LayuiTableGenerate.Controllers
             , data: {
                 fullscreenLoading: false,
                 {{tableName}}TableLoading: false,
+                mainTableHeight: 0,
                 {{tableName}}Table: {
                     data: [],
                     total: 1
@@ -226,10 +227,26 @@ namespace LayuiTableGenerate.Controllers
             }
             , mounted() {
                 this.getTableList();
+                this.fetTableHeight();
             }
             , methods: {
+                resetHeight() {
+                    return new Promise((resolve, reject) => {
+                        this.mainTableHeight = 0;
+                        resolve();
+                    })
+                },
+                fetTableHeight() {
+                    this.resetHeight().then(res => {
+                        this.mainTableHeight = window.innerHeight - getElementTop(document.getElementById('mainTable')) - 60;
+                    })
+                },
                 handleCurrentChange(val) {
                     this.{{tableName}}Query.pageIndex = val;
+                    this.getTableList();
+                },
+                handleSizeChange(val) {
+                    this.{{tableName}}Query.pageSize = val;
                     this.getTableList();
                 },
                 closeAdd{{tableName}}Layer() {
@@ -305,6 +322,16 @@ namespace LayuiTableGenerate.Controllers
             , updated() {
             }
         });
+        function getElementTop(element) {
+            var actualTop = element.offsetTop;
+            var current = element.offsetParent;
+
+            while (current !== null) {
+                actualTop += current.offsetTop;
+                current = current.offsetParent;
+            }
+            return actualTop;
+        }
     </script>
 </body>
 </html>
