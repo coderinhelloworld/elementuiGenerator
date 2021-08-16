@@ -12,9 +12,11 @@
     .layui-form-radio {
         margin-top: 12px !important;
     }
+
     .layui-table-cell {
         overflow: visible !important;
     }
+
     td .layui-form-select {
         margin-top: -10px;
         margin-left: -15px;
@@ -28,8 +30,8 @@
         <div class="layui-input-block">
             <select name="dbType" lay-verify="required">
                 <option value=""></option>
-                <option  selected value="0">mysql</option>
-                <option  value="1">sqlserver</option>
+                <option value="0">mysql</option>
+                <option selected value="1">sqlserver</option>
             </select>
         </div>
     </div>
@@ -54,6 +56,9 @@
         <div class="layui-input-block">
             <button type="button" class="layui-btn layui-btn-normal" id="getTableNames">获取数据库表单</button>
         </div>
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-normal" id="getLocalBaseTable">获取保存的配置表单</button>
+        </div>
     </div>
     <div class="layui-form-item">
         <div class="layui-input-block">
@@ -66,6 +71,7 @@
     <div class="layui-form-item">
         <div class="layui-input-block">
             <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+            <button class="layui-btn" lay-submit lay-filter="saveSetting">保存配置</button>
             <button type="reset" class="layui-btn layui-btn-primary">重置</button>
         </div>
     </div>
@@ -75,25 +81,24 @@
 </div>
 
 <script type="text/html" id="InputFormCheckbox">
-    <input type="checkbox" name="InputForm" value="{{d.InputForm}}"  lay-skin="switch" lay-text="on|off" title="启用" lay-filter="enableInputForm" {{ d.InputForm == false ? '' :'checked'  }}>
+    <input type="checkbox" name="InputForm" value="{{d.InputForm}}" lay-skin="switch" lay-text="on|off" title="启用" lay-filter="enableInputForm" {{ d.InputForm == false ? '' :'checked'  }}>
 </script>
 <script type="text/html" id="SearchFormCheckbox">
-    <input type="checkbox" name="SearchForm" value="{{d.SearchForm}}"  lay-skin="switch" lay-text="on|off" title="启用" lay-filter="enableSearchForm" {{ d.SearchForm == false ?'':'checked' }}>
+    <input type="checkbox" name="SearchForm" value="{{d.SearchForm}}" lay-skin="switch" lay-text="on|off" title="启用" lay-filter="enableSearchForm" {{ d.SearchForm == false ?'':'checked' }}>
 </script>
 <script type="text/html" id="ShowInTableForm">
-    <input type="checkbox" name="SearchForm" value="{{d.ShowInTable}}"  lay-skin="switch" lay-text="on|off" title="启用" lay-filter="ShowInTableForm" {{ d.ShowInTable == false ?'':'checked' }}>
+    <input type="checkbox" name="SearchForm" value="{{d.ShowInTable}}" lay-skin="switch" lay-text="on|off" title="启用" lay-filter="ShowInTableForm" {{ d.ShowInTable == false ?'':'checked' }}>
 </script>
-<script type="text/html" id="InputType" >
-    <select name="InputType" value="{{d.InputType}}" lay-filter="typeForm" >
+<script type="text/html" id="InputType">
+    <select name="InputType" value="{{d.InputType}}" lay-filter="typeForm">
         <option selected="selected" value="">请选择</option>
-        <option value="@LayuiTableGenerate.Enum.FormInputType.Date.ToString()">Date</option>
+        <option value="@LayuiTableGenerate.Enum.FormInputType.Date.ToString()" >Date</option>
         <option value="@LayuiTableGenerate.Enum.FormInputType.Input.ToString()">Input</option>
         <option value="@LayuiTableGenerate.Enum.FormInputType.Option.ToString()">Option</option>
     </select>
 </script>
-
-
 <script>
+    var tableName = "";
     //Demo
     layui.use(['form', 'table'], function () {
 
@@ -159,6 +164,54 @@
                 , toolbar: '#headToolBar'
             });
         });
+        layui.$('#getLocalBaseTable').on('click', function () {
+            table.render({
+                elem: '#tableSetting'
+                , height: 600
+                , where: form.val('dbForm')
+                , url: '/home/GetLocalTableNames'
+                , cellMinWidth: 80
+                , page: true
+                , limit: 10
+                , cols: [[
+                    //{ type: 'checkbox' }
+                    { field: 'ColumnTitle', title: '字段' }
+                    , { field: 'ColumnDes', title: '表名描述', edit: true }
+                    , { field: 'InputForm', title: '新增需要的字段', templet: "#InputFormCheckbox" }
+                    , { field: 'SearchForm', title: '搜索需要的字段', templet: "#SearchFormCheckbox" }
+                    , { field: 'ShowInTable', title: '需要展示在Table', templet: "#ShowInTableForm" }
+                    , {
+                        field: 'InputType', title: '类型', templet: function (d) {
+
+
+
+                            var html ='<select name="InputType" value="'+d.InputType+'" lay-filter="typeForm">'+
+                                        '<option  value="">请选择</option>'+
+                                        '<option'+(d.InputType=="Date"?" selected ":" ")+'value="Date">Date</option>'+
+                                        '<option'+ (d.InputType == "Input" ? " selected " : " ") +'value="Input">Input</option>'+
+                                        '<option'+ (d.InputType == "Option" ? " selected " : " ") +'value="Option">Option</option></select>';
+                            return html;
+                        }
+                    }
+                    //, { field: 'inputForm', title: '表单输入展示', templet: '<div><div class="layui-table-cell laytable-cell-44-0-0 laytable-cell-checkbox"><input type="checkbox" name="layTableCheckbox" lay-skin="primary"><div class="layui-unselect layui-form-checkbox" lay-skin="primary"><i class="layui-icon layui-icon-ok"></i></div></div></div>' }
+                    //, { field: 'tableShow', title: '表单呈现展示', templet: '<div><div class="layui-table-cell laytable-cell-44-0-0 laytable-cell-checkbox"><input type="checkbox" name="layTableCheckbox" lay-skin="primary"><div class="layui-unselect layui-form-checkbox" lay-skin="primary"><i class="layui-icon layui-icon-ok"></i></div></div></div>' }
+                    , { fixed: 'right', align: 'center', toolbar: '#endToolBar' }
+                ]]
+                , toolbar: '#headToolBar'
+            });
+
+            $.ajax({
+                url: "/home/GetLocalTableName",
+                type: 'POST',
+                dataType: 'json',
+                data: "",
+                success: function (data) {
+                    tableName = data.data;
+                }
+            })
+
+        });
+
         //选中行后，更改对应值
         layui.form.on('switch(enableInputForm)', function (obj) {
             var onoff = this.checked ?true : false;
@@ -181,7 +234,7 @@
             var data = layui.table.cache.tableSetting[index];
             data.ShowInTable = onoff;
         });
-        layui.form.on('select(typeForm)', function (obj) {            
+        layui.form.on('select(typeForm)', function (obj) {
             //方法二取数据 （根据索引table.cache里面的行数据）
             var index = obj.othis.parents('tr').attr("data-index");
             var data = layui.table.cache.tableSetting[index];
@@ -192,7 +245,9 @@
         //监听提交
         form.on('submit(formDemo)', function (data) {
             var loading = layer.load(0);
-            var tableName = document.getElementsByName("dbTable")[0].value;
+            if (tableName=="") {
+                tableName = document.getElementsByName("dbTable")[0].value;
+            }
             $.ajax({
                 url: "/home/CreateTable2?tableName=" + tableName,
                 type: 'POST',
@@ -203,6 +258,29 @@
                     layer.close(loading);
                 }
             })
+            return false;
+        });
+        form.on('submit(saveSetting)', function (data) {
+            var loading = layer.load(0);
+            if (tableName=="") {
+                tableName = document.getElementsByName("dbTable")[0].value;
+            }
+            $.ajax({
+                url: "/home/SaveSetting?tableName=" + tableName,
+                type: 'POST',
+                dataType: 'json',
+                data: "columns=" +JSON.stringify(layui.table.cache.tableSetting),
+                success: function (data) {
+
+                    layer.closeAll();
+                },
+                error: function (data) {
+
+                    console.log(data);
+                    layer.closeAll();
+                }
+            })
+
             return false;
         });
     });

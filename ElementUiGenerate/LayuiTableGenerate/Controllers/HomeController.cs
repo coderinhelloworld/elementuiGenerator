@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using static LayuiTableGenerate.Models.LayuiPage;
 using LayuiTableGenerate.Assemblys;
 using LayuiTableGenerate.Enum;
+using System.IO;
 
 namespace LayuiTableGenerate.Controllers
 {
@@ -64,8 +65,54 @@ namespace LayuiTableGenerate.Controllers
                 Body = "",
             };
             return View();
+        }     
+        public IActionResult SaveSetting(string columns, string tableName)
+        {
+
+            LogToTxt("setting.txt", columns+"#"+tableName);
+            return Ok("") ;
         }
-        enum SearchType{
+
+        public static string getSetting()
+        {
+
+            var pathHead = Directory.GetCurrentDirectory();
+            string path = pathHead + "/log/" + "setting.txt";
+            string s = System.IO.File.ReadAllText(path);
+            return s;
+        }
+
+        public static void LogToTxt(string filename, string content)
+        {
+            try
+            {
+                //物理路径前缀
+                //filename = DateTime.Now.ToString("yyyyMM_") + filename;
+                var pathHead = Directory.GetCurrentDirectory();
+                string path = pathHead + "/log/" + filename;
+                if (!Directory.Exists(pathHead + "/log/"))
+                {
+                    Directory.CreateDirectory(pathHead + "/log/");
+                }
+                if (System.IO.File.Exists(path))
+                {
+                    System.IO.File.Delete(path);
+                }
+                System.IO.FileStream fs = new System.IO.FileStream(path, System.IO.FileMode.OpenOrCreate);
+                System.IO.StreamWriter sw = new System.IO.StreamWriter(fs);
+                fs.Position = fs.Length;
+                sw.WriteLine(content);
+                sw.Close();
+                fs.Close();
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.ToString();
+
+            }
+        }
+    
+    enum SearchType{
             Input=1,
             Date=2,
             Option=3
@@ -130,7 +177,7 @@ namespace LayuiTableGenerate.Controllers
             <el-card class='box-card' style='margin-top:10px'>
                 <template>
                     <el-table id='mainTable' :data='{{tableName}}Table.data' v-loading='{{tableName}}TableLoading' style='width: 100%' border element-loading-background='rgba(255, 255, 255, 1)' :header-cell-style='{{headerCellStyle}}' element-loading-text='Loading' element-loading-spinner='el-icon-loading'>
-                                                       { {tableColumns}}
+                                                       {{tableColumns}}
                         <el-table-column fixed='right' show-summary width='240' label='操作' style='margin:5px'>
                             <template slot-scope='scope'>
                                 <el-tooltip class='item' effect='dark' content='编辑' placement='top-end'>
@@ -346,6 +393,7 @@ namespace LayuiTableGenerate.Controllers
             var headerCellStyle = "{background:\"#eef1f6\",color:\"#606266\"}";
             var editGiveValue = "";
             var optionData = "";
+            var optionList = new List<string>();
 
             foreach (var item in settingList)
             {
@@ -368,7 +416,13 @@ namespace LayuiTableGenerate.Controllers
                         var optionName = tableName + "Query" + item.ColumnTitle + "Options";
                         var optionForm = new OptionModule(tableName + "Query." + item.ColumnTitle, optionName, item.ColumnDes);
                         searchForm += optionForm.Value + "\r\n";
-                        optionData += optionName + ":'',";
+                        var existOption = optionList.Where(x => x == optionName).FirstOrDefault();
+                        if (existOption==null)
+                        {
+                            optionData += optionName + ":''," + "\r\n";
+                            optionList.Add(optionName);
+                        }
+
                     }
                 }
                 //新增的时候
@@ -390,8 +444,15 @@ namespace LayuiTableGenerate.Controllers
                     {
                         var optionName = tableName + "Query" + item.ColumnTitle + "Options";
                         var optionForm = new OptionModule(tableName + "Request." + item.ColumnTitle, optionName, item.ColumnDes,item.ColumnDes);
-                        optionData += optionName + ":'',";
-                        addNewDataForm += optionForm.Value + "\r\n"; ;
+
+                        var existOption = optionList.Where(x => x == optionName).FirstOrDefault();
+                        if (existOption == null)
+                        {
+                            optionData += optionName + ":''," + "\r\n";
+                            optionList.Add(optionName);
+                        }
+                        addNewDataForm += optionForm.Value + "\r\n"; 
+
                     }
                 }
 
@@ -705,6 +766,22 @@ namespace LayuiTableGenerate.Controllers
         {
             var columnList = GetDataBaseHelper.GetColumnList(dbType, dbCon, dbTable);
             return Json(new { code = 0, msg = "", count = 10, data = columnList });
+        }  
+        public IActionResult GetLocalTableNames()
+        {
+            var setting = getSetting().Split('#');
+            var table = setting[1].ToString();
+            var columnList = setting[0].ToString();
+            var res = JsonConvert.DeserializeObject<List<column>>(columnList);
+            return Json(new { code = 0, msg = "", count = 10, data = res });
+        }
+        public IActionResult GetLocalTableName()
+        {
+            var setting = getSetting().Split('#');
+            var table = setting[1].ToString().Replace("\r\n","");
+            var columnList = setting[0].ToString();
+            var res = JsonConvert.DeserializeObject<List<column>>(columnList);
+            return Json(new { code = 0, msg = "", count = 10, data = table });
         }
     }
 }
