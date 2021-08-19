@@ -176,7 +176,7 @@ namespace LayuiTableGenerate.Controllers
             </el-row>
             <el-card class='box-card' style='margin-top:10px'>
                 <template>
-                    <el-table id='mainTable' :data='{{tableName}}Table.data' v-loading='{{tableName}}TableLoading' style='width: 100%' border element-loading-background='rgba(255, 255, 255, 1)' :header-cell-style='{{headerCellStyle}}' element-loading-text='Loading' element-loading-spinner='el-icon-loading'>
+                    <el-table id='mainTable' :height='mainTableHeight' :data='{{tableName}}Table.data' v-loading='{{tableName}}TableLoading' style='width: 100%' border element-loading-background='rgba(255, 255, 255, 1)' :header-cell-style='{{headerCellStyle}}' element-loading-text='Loading' element-loading-spinner='el-icon-loading'>
                                                        {{tableColumns}}
                         <el-table-column fixed='right' show-summary width='240' label='操作' style='margin:5px'>
                             <template slot-scope='scope'>
