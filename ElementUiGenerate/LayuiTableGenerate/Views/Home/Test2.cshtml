@@ -1,0 +1,230 @@
+﻿<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml'>
+<head runat="server">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <link crossorigin="anonymous" integrity="sha512-WYzwsHxfl8+qirF4V9ZyFULDBwxvm1kuCHlSd1F57JwALyQMxeq7j1blj4Y7pmP9r0tVMk7GYUI5xLDB7QIZCA==" href="https://lib.baomitu.com/element-ui/2.15.3/theme-chalk/index.min.css" rel="stylesheet">
+    <style>
+        .el-table thead, .el-table {
+            color: #333;
+        }
+
+        .el-header {
+            padding: 0 0px;
+        }
+
+        .el-form-item--mini.el-form-item, .el-form-item--small.el-form-item {
+            margin-bottom: 10px;
+        }
+
+        .el-dialog__header {
+            border-bottom: 1px solid #ebebeb;
+            background-color: #F8F8F8;
+        }
+
+        .el-card__body {
+            padding: 10px;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <el-container v-loading.fullscreen.lock="fullscreenLoading">
+            <el-header style="height:auto">
+                <el-form :inline="true" @@keyup.enter.native="getTableList">
+                    {{searchForm}}
+                </el-form>
+            </el-header>
+            <el-row :gutter="10" style="margin-left:0px">
+                <el-button-group>
+                    <el-button type="primary" @@click="showAdd{{tableName}}Layer=true" icon="el-icon-plus">新增</el-button>
+                </el-button-group>
+            </el-row>
+            <el-card class="box-card" style="margin-top:10px">
+                <template>
+                    <el-table :data="{{tableName}}Table.data" v-loading="{{tableName}}TableLoading" style="width: 100%" border element-loading-background="rgba(255, 255, 255, 1)" :header-cell-style="{background:'#eef1f6',color:'#606266'}" element-loading-text="Loading" element-loading-spinner="el-icon-loading">
+                        <el-table-column :show-overflow-tooltip="true" prop="InsertDateTime" label="修改日期" width="180"></el-table-column>
+                        <el-table-column :show-overflow-tooltip="true" prop="Title" label="Title"></el-table-column>
+                        <el-table-column :show-overflow-tooltip="true" prop="Url" label="Url"></el-table-column>
+                        <el-table-column fixed="right" show-summary width="240" label="操作" style="margin:5px">
+                            <template slot-scope="scope">
+                                <el-tooltip class="item" effect="dark" content="编辑" placement="top-end">
+                                    <el-button size="mini" type="success" @@click="edit{{tableName}}(scope.row)"><i class="el-icon-edit-outline"></i></el-button>
+                                </el-tooltip>
+                                <el-tooltip class="item" effect="dark" content="删除" placement="top-end">
+                                    <el-button size="mini" type="danger" @@click="delete{{tableName}}(scope.row)"><i class="el-icon-delete"></i></el-button>
+                                </el-tooltip>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                    <el-pagination style="margin-top:10px" :page-size="{{tableName}}Query.pageSize" @@current-change="handleCurrentChange" :current-page.sync="{{tableName}}Query.pageIndex" background layout="total,prev, pager, next" :total="{{tableName}}Table.total"></el-pagination>
+                </template>
+            </el-card>
+        </el-container>
+        <div>
+            <el-dialog title="获取报告ID" :visible.sync="showAdd{{tableName}}Layer">
+                <el-form label-width="80px" :inline="false" :model="{{tableName}}Request" ref="add{{tableName}}Layer">
+                    {{addNewDataForm}}
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button type="primary" @@click="submitAdd{{tableName}}Form('add{{tableName}}Layer')">确 认</el-button>
+                    <el-button @@click="closeAdd{{tableName}}Layer">取 消</el-button>
+                </div>
+            </el-dialog>
+        </div>
+    </div>
+    <script crossorigin="anonymous" integrity="sha512-pSyYzOKCLD2xoGM1GwkeHbdXgMRVsSqQaaUoHskx/HF09POwvow2VfVEdARIYwdeFLbu+2FCOTRYuiyeGxXkEg==" src="https://lib.baomitu.com/vue/2.6.14/vue.js"></script>
+    <script crossorigin="anonymous" integrity="sha512-+mrl1yz9SfyUGXnOiA1ZinMC+NAtmqccFL49hjdNljqBYqopcgRO7LLRd+rK+kmc9+4FG75bBkEhjBaiV3jj8w==" src="https://lib.baomitu.com/element-ui/2.15.3/index.js"></script>
+    <script crossorigin="anonymous" integrity="sha512-SzBVU+C0eJl+4BIg29X72SYgYNUI2bNVVUFfG9eg1g2jOMvBy3w2movesVS0u+IslOgFyRxuVrMrSHcnLPLN+Q==" src="https://lib.baomitu.com/vue-resource/1.5.3/vue-resource.min.js"></script>
+    <script>
+        Vue.prototype.$ELEMENT = { size: 'small', zIndex: 3000 };
+        var ajax = Vue.http;
+        var app = new Vue({
+            el: '#app'
+            , data: {
+                fullscreenLoading: false,
+                {{tableName}}TableLoading: false,
+                shopMarkets: [1, 2, 3],
+                {{tableName}}Table: {
+                    data: [],
+                    total: 1
+                },
+                {{tableName}}Query: {{tableQueryParams}},
+                {{tableName}}Request: {{tableRequestParams}},
+                showAdd{{tableName}}Layer: false,
+                pickerOptions: {
+                    shortcuts: [
+                        {
+                            text: '今天',
+                            onClick(picker) {
+                                const end = new Date();
+                                const start = new Date();
+                                start.setTime(start.getTime());
+                                picker.$emit('pick', [start, end]);
+                            }
+                        },
+                        {
+                            text: '最近一周',
+                            onClick(picker) {
+                                const end = new Date();
+                                const start = new Date();
+                                start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+                                picker.$emit('pick', [start, end]);
+                            }
+                        }, {
+                            text: '这个月',
+                            onClick(picker) {
+                                const end = new Date();
+                                const start = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+                                picker.$emit('pick', [start, end]);
+                            }
+                        },
+                        {
+                            text: '上一个月',
+                            onClick(picker) {
+                                const start = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
+                                const end = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+                                end.setDate(end.getDate() - 1);
+                                picker.$emit('pick', [start, end]);
+                            }
+                        },
+                        {
+                            text: '今年',
+                            onClick(picker) {
+                                const start = new Date(new Date().getFullYear(), 0, 1);
+                                const end = new Date();
+                                picker.$emit('pick', [start, end]);
+                            }
+                        },
+                    ]
+                },
+            }
+            , mounted() {
+                this.getTableList();
+            }
+            , methods: {
+                handleCurrentChange(val) {
+                    this.{{tableName}}Query.pageIndex = val;
+                    this.getTableList();
+                },
+                closeAdd{{tableName}}Layer() {
+                    this.{{tableName}}Request.id = 0;
+                    this.showAdd{{tableName}}Layer = false;
+                },
+                delete{{tableName}}(row) {
+                    this.$confirm('确认删除?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        ajax.post('/Home/Delete{{tableName}}', JSON.stringify(this.{{tableName}}Request)).then((res) => {
+                            this.{{tableName}}TableLoading = false;
+                            if (res.bodyText.includes("Error")) {
+                                console.log(res);
+                                this.$message.error(res.bodyText);
+                            }
+                            else {
+                                this.showAdd{{tableName}}Layer = false;
+                                this.$message({
+                                    message: '成功',
+                                    type: 'success'
+                                });
+                            }
+                        }, (res) => {
+                        });
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '已取消删除'
+                        });
+                    });
+                },
+                edit{{tableName}}(row) {
+                    this.showAdd{{tableName}}Layer = true;
+                    this.{{tableName}}Request.title = row.Title;
+                    this.{{tableName}}Request.id = row.ID;
+                },
+                submitAdd{{tableName}}Form() {
+                    ajax.post('/home/AddOrUpdate{{tableName}}', JSON.stringify(this.{{tableName}}Request)).then((res) => {
+                        this.{{tableName}}TableLoading = false;
+                        if (res.bodyText.includes("Error")) {
+                            console.log(res);
+                            this.$message.error(res.bodyText);
+                        }
+                        else {
+                            this.showAdd{{tableName}}Layer = false;
+                            this.$message({
+                                message: '成功',
+                                type: 'success'
+                            });
+                        }
+                    }, (res) => {
+                    });
+                },
+                getTableList() {
+                    this.{{tableName}}TableLoading = true;
+                    ajax.post('/home/Get{{tableName}}List', JSON.stringify(this.{{tableName}}Query)).then((res) => {
+                        this.{{tableName}}TableLoading = false;
+                        if (res.bodyText.includes("Error")) {
+                            console.log(res);
+                            this.$message.error(res.bodyText);
+                        }
+                        else {
+                            this.{{tableName}}Table.data = res.data.data;
+                            this.{{tableName}}Table.total = res.data.count;
+                        }
+                        this.{{tableName}}TableLoading = false;
+                    }, (res) => {
+                    });
+                }
+            }
+            , updated() {
+            }
+        });
+    </script>
+</body>
+</html>
