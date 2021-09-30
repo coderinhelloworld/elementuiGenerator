@@ -27,7 +27,7 @@ namespace LayuiTableGenerate.Repository
                 var database = dbCon.Replace("Database=", "").Split(';')[0];
                 using (var db = dbFactory.Open())
                 {
-                    var sql = "SELECT table_name  FROM information_schema.tables  WHERE table_schema = '"+ database + "'  ORDER BY table_name DESC";
+                    var sql = "SELECT table_name  FROM information_schema.tables  WHERE table_schema = '"+ db.Database + "'  ORDER BY table_name DESC";
                     var res = db.Query<string>(sql).ToList();
                     return res;
                 }
