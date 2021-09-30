@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LayuiTableGenerate.Classes;
 
 namespace LayuiTableGenerate.Assemblys
 {
@@ -20,7 +21,7 @@ namespace LayuiTableGenerate.Assemblys
         {
             get
             {
-                _value = @"<el-table-column :show-overflow-tooltip='true' prop='"+ _modelName + "' label='"+ _showName + "'></el-table-column>";
+                _value = @"<el-table-column :show-overflow-tooltip='true' prop='"+ _modelName.ToFirstLetterLower() + "' label='"+ _showName + "'></el-table-column>";
                 return _value;
 
             }

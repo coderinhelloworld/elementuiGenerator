@@ -27,12 +27,12 @@ namespace LayuiTableGenerate.Controllers
 
         public IActionResult Index()
         {
-
-            var n = new DateModule("test");
-            var page = new LayuiPage
+            var dbSettingString = GetDbSetting();
+            if (dbSettingString.Length>5)
             {
-                Body = "",
-            };
+                var dbSetting = JsonConvert.DeserializeObject<DbSetting>(dbSettingString);
+                return View(dbSetting);
+            }
             return View();
         }
         public IActionResult Test2()
@@ -81,6 +81,20 @@ namespace LayuiTableGenerate.Controllers
             string s = System.IO.File.ReadAllText(path);
             return s;
         }
+        public static string GetDbSetting()
+        {
+            try
+            {
+                var pathHead = Directory.GetCurrentDirectory();
+            string path = pathHead + "/log/" + "dbSetting.txt";
+            string s = System.IO.File.ReadAllText(path);
+            return s;
+            }
+            catch (Exception e)
+            {
+                return "";
+            }
+        }
 
         public static void LogToTxt(string filename, string content)
         {
@@ -108,6 +122,7 @@ namespace LayuiTableGenerate.Controllers
             catch (Exception ex)
             {
                 var msg = ex.ToString();
+      
 
             }
         }
@@ -400,21 +415,21 @@ namespace LayuiTableGenerate.Controllers
                 //搜索的时候
                 if (item.SearchForm)
                 {
-                    tableQueryParams += item.ColumnTitle+":''," + "\r\n";
+                    tableQueryParams += item.ColumnTitle.ToFirstLetterLower()+":''," + "\r\n";
                     if (item.InputType== FormInputType.Date.ToString())
                     {
-                        var dateForm=new DateModule(tableName+"Query."+ item.ColumnTitle);
+                        var dateForm=new DateModule(tableName+"Query."+ item.ColumnTitle.ToFirstLetterLower());
                         searchForm +=dateForm.Value + "\r\n"; 
                     }
                     if (item.InputType == FormInputType.Input.ToString())
                     {
-                        var inputForm = new InputModule(tableName + "Query." + item.ColumnTitle, item.ColumnDes);
+                        var inputForm = new InputModule(tableName + "Query." + item.ColumnTitle.ToFirstLetterLower(), item.ColumnDes);
                         searchForm += inputForm.Value + "\r\n"; 
                     }
                     if (item.InputType == FormInputType.Option.ToString())
                     {
-                        var optionName = tableName + "Query" + item.ColumnTitle + "Options";
-                        var optionForm = new OptionModule(tableName + "Query." + item.ColumnTitle, optionName, item.ColumnDes);
+                        var optionName = tableName + "Query" + item.ColumnTitle.ToFirstLetterLower() + "Options";
+                        var optionForm = new OptionModule(tableName + "Query." + item.ColumnTitle.ToFirstLetterLower(), optionName, item.ColumnDes);
                         searchForm += optionForm.Value + "\r\n";
                         var existOption = optionList.Where(x => x == optionName).FirstOrDefault();
                         if (existOption==null)
@@ -428,22 +443,22 @@ namespace LayuiTableGenerate.Controllers
                 //新增的时候
                 if (item.InputForm)
                 {
-                    tableRequestParams += item.ColumnTitle + ":''," + "\r\n";
-                    editGiveValue += "this."+tableName+"Request."+item.ColumnTitle+"=row."+item.ColumnTitle+";"+ "\r\n";
+                    tableRequestParams += item.ColumnTitle.ToFirstLetterLower() + ":''," + "\r\n";
+                    editGiveValue += "this."+tableName+"Request."+item.ColumnTitle.ToFirstLetterLower()+"=row."+item.ColumnTitle.ToFirstLetterLower()+";"+ "\r\n";
                     if (item.InputType == FormInputType.Date.ToString())
                     {
-                        var dateForm = new DateModule(tableName + "Request." + item.ColumnTitle,item.ColumnDes);
+                        var dateForm = new DateModule(tableName + "Request." + item.ColumnTitle.ToFirstLetterLower(),item.ColumnDes);
                         addNewDataForm += dateForm.Value+"\r\n";
                     }
                     if (item.InputType == FormInputType.Input.ToString())
                     {
-                        var inputForm = new InputModule(tableName + "Request." + item.ColumnTitle, item.ColumnDes, item.ColumnDes);
+                        var inputForm = new InputModule(tableName + "Request." + item.ColumnTitle.ToFirstLetterLower(), item.ColumnDes, item.ColumnDes);
                         addNewDataForm += inputForm.Value + "\r\n"; ;
                     }
                     if (item.InputType == FormInputType.Option.ToString())
                     {
-                        var optionName = tableName + "Query" + item.ColumnTitle + "Options";
-                        var optionForm = new OptionModule(tableName + "Request." + item.ColumnTitle, optionName, item.ColumnDes,item.ColumnDes);
+                        var optionName = tableName + "Query" + item.ColumnTitle.ToFirstLetterLower() + "Options";
+                        var optionForm = new OptionModule(tableName + "Request." + item.ColumnTitle.ToFirstLetterLower(), optionName, item.ColumnDes,item.ColumnDes);
 
                         var existOption = optionList.Where(x => x == optionName).FirstOrDefault();
                         if (existOption == null)
@@ -451,7 +466,7 @@ namespace LayuiTableGenerate.Controllers
                             optionData += optionName + ":''," + "\r\n";
                             optionList.Add(optionName);
                         }
-                        addNewDataForm += optionForm.Value + "\r\n"; 
+                        addNewDataForm += optionForm.Value.ToFirstLetterLower() + "\r\n"; 
 
                     }
                 }
@@ -459,8 +474,8 @@ namespace LayuiTableGenerate.Controllers
                 //显示在表格中
                 if (item.ShowInTable)
                 {
-                    var column = new ColumnModule(item.ColumnTitle,item.ColumnDes);
-                    tableColumns += column.Value + "\r\n"; ;
+                    var column = new ColumnModule(item.ColumnTitle.ToFirstLetterLower(),item.ColumnDes);
+                    tableColumns += column.Value.ToFirstLetterLower() + "\r\n"; ;
                 }
 
 
@@ -502,9 +517,9 @@ namespace LayuiTableGenerate.Controllers
 
 
                 formItem += @"<div class='layui-form-item'>
-                                <label class='layui-form-label'>" + (item.ColumnDes == "" ? item.ColumnTitle : item.ColumnDes) + @"</label>
+                                <label class='layui-form-label'>" + (item.ColumnDes == "" ? item.ColumnTitle.ToFirstLetterLower() : item.ColumnDes) + @"</label>
                                 <div class='layui-input-block'>
-                                    <input type='text' name='" + item.ColumnTitle + @"' placeholder='请输入' required lay-verify='required' autocomplete='off' class='layui-input'>
+                                    <input type='text' name='" + item.ColumnTitle.ToFirstLetterLower() + @"' placeholder='请输入' required lay-verify='required' autocomplete='off' class='layui-input'>
                                 </div>
                              </div>";
 
@@ -513,7 +528,7 @@ namespace LayuiTableGenerate.Controllers
 
             foreach (var item in columnList)
             {
-                colsFields = colsFields + ", { field: '" + item.ColumnTitle + "', title: '" + (item.ColumnDes == "" ? item.ColumnTitle : item.ColumnDes) + "' }\n";
+                colsFields = colsFields + ", { field: '" + item.ColumnTitle.ToFirstLetterLower() + "', title: '" + (item.ColumnDes == "" ? item.ColumnTitle.ToFirstLetterLower() : item.ColumnDes) + "' }\n";
             }
 
 
@@ -699,8 +714,28 @@ namespace LayuiTableGenerate.Controllers
         //获取数据库表名
         public IActionResult DbTableList(int dbType, string dbCon, string dbTable)
         {
+
+            try
+            {
+
+
+            var dbSetting = new DbSetting
+            {
+                DbType = dbType,
+                DbConnectionString = dbCon
+            };
+
+            LogToTxt("dbSetting.txt", JsonConvert.SerializeObject(dbSetting));
             var list = GetDataBaseHelper.GetDataBaseTable(dbCon, dbType);
             return Json(list);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                _logger.LogError(e.ToString());
+                return Json("");
+            }
+          
 
 
         }

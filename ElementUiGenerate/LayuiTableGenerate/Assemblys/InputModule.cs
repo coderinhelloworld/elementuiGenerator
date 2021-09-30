@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LayuiTableGenerate.Classes;
+using ServiceStack;
 
 namespace LayuiTableGenerate.Assemblys
 {
@@ -24,7 +26,7 @@ namespace LayuiTableGenerate.Assemblys
         {
             get
             {
-                _value = @"<el-form-item prop='"+ _tableName + "' label='" + _frontLabelName + @"'>
+                _value = @"<el-form-item prop='"+ _tableName.ToFirstLetterLower() + "' label='" + _frontLabelName + @"'>
                         <el-input placeholder='" + _showName + @"' v-model='"+ _modelName + @"'></el-input>
                     </el-form-item>";
                 return _value;

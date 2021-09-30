@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
-
+@model LayuiTableGenerate.Classes.DbSetting
 <head>
     <link href="~/lib/layui/css/layui.css" rel="stylesheet" />
     <script src="~/lib/jquery/dist/jquery.js"></script>
@@ -30,15 +30,31 @@
         <div class="layui-input-block">
             <select name="dbType" lay-verify="required">
                 <option value=""></option>
-                <option value="0">mysql</option>
-                <option selected value="1">sqlserver</option>
+                @if (Model!=null) 
+                {
+                    if (Model.DbType==0)
+                    {
+                        <option  Selected  value="0">mysql</option>
+                        <option   value="1">sqlserver</option>
+                    }
+                    if (Model.DbType==1)
+                    {
+                        <option    value="0">mysql</option>
+                        <option  Selected value="1">sqlserver</option>
+                    }
+                }
+                else
+                {
+                    <option    value="0">mysql</option>
+                    <option  Selected  value="1">sqlserver</option>
+                }
             </select>
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">连接字符串</label>
         <div class="layui-input-block">
-            <input type="text" name="dbCon" required lay-verify="required" placeholder="请输入标题" value="Server=10.0.0.201;database=AGSoft_Test;uid=sa;pwd=agsoft314159;" autocomplete="off" class="layui-input">
+            <input type="text" name="dbCon" required lay-verify="required" placeholder="请输入标题" value="@(Model==null?"Server=10.0.0.201;database=AGSoft_Test;uid=sa;pwd=agsoft314159;":Model.DbConnectionString)" autocomplete="off" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
@@ -56,7 +72,7 @@
         <div class="layui-input-block">
             <button type="button" class="layui-btn layui-btn-normal" id="getTableNames">获取数据库表单</button>
         </div>
-        <div class="layui-input-block">
+        <div style="margin-top:10px" class="layui-input-block">
             <button type="button" class="layui-btn layui-btn-normal" id="getLocalBaseTable">获取保存的配置表单</button>
         </div>
     </div>
@@ -101,14 +117,13 @@
     var tableName = "";
     //Demo
     layui.use(['form', 'table'], function () {
-
-
         var form = layui.form, table = layui.table;
         //表单取值
         layui.$('#getDataBaseTable').on('click', function () {
             //监听提交
             var data = form.val('dbForm');
             var loading = layer.load(0);
+
             $.ajax({
                 url: "/home/DbTableList",
                 data: data,
@@ -165,6 +180,9 @@
             });
         });
         layui.$('#getLocalBaseTable').on('click', function () {
+            if (tableName==="") {
+                tableName = document.getElementsByName("dbTable")[0].value;
+            }
             table.render({
                 elem: '#tableSetting'
                 , height: 600
@@ -214,21 +232,21 @@
 
         //选中行后，更改对应值
         layui.form.on('switch(enableInputForm)', function (obj) {
-            var onoff = this.checked ?true : false;
+            var onoff = !!this.checked;
             //方法二取数据 （根据索引table.cache里面的行数据）
             var index = obj.othis.parents('tr').attr("data-index");
             var data = layui.table.cache.tableSetting[index];
             data.InputForm = onoff;
         });
         layui.form.on('switch(enableSearchForm)', function (obj) {
-            var onoff = this.checked ? true : false;
+            var onoff = !!this.checked;
             //方法二取数据 （根据索引table.cache里面的行数据）
             var index = obj.othis.parents('tr').attr("data-index");
             var data = layui.table.cache.tableSetting[index];
             data.SearchForm = onoff;
         });
         layui.form.on('switch(ShowInTableForm)', function (obj) {
-            var onoff = this.checked ? true : false;
+            var onoff = !!this.checked;
             //方法二取数据 （根据索引table.cache里面的行数据）
             var index = obj.othis.parents('tr').attr("data-index");
             var data = layui.table.cache.tableSetting[index];
@@ -249,7 +267,7 @@
                 tableName = document.getElementsByName("dbTable")[0].value;
             }
             $.ajax({
-                url: "/home/CreateTable2?tableName=" + tableName,
+                url: "/VueElementUi/CreatePageCode?tableName=" + tableName,
                 type: 'POST',
                 dataType: 'json',
                 data: "columns=" +JSON.stringify(layui.table.cache.tableSetting),
