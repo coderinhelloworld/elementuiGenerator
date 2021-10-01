@@ -148,7 +148,7 @@ export default {
                 },
                 fetTableHeight() {
                     this.resetHeight().then(res => {
-                        this.mainTableHeight = window.innerHeight - getElementTop(document.getElementById('mainTable')) - 60;
+                        this.mainTableHeight = window.innerHeight - this.getElementTop(document.getElementById('mainTable')) - 60;
                     })
                 },
                 handleCurrentChange(val) {
@@ -212,7 +212,17 @@ export default {
                     }, (res) => {
                     });
                 },
-                getTableList() {
+               getElementTop(element){
+                    var actualTop = element.offsetTop;
+                    var current = element.offsetParent;
+
+                    while (current !== null) {
+                        actualTop += current.offsetTop;
+                        current = current.offsetParent;
+                    }
+                    return actualTop;
+               },
+               getTableList() {
                     this.{{tableName}}TableLoading = true;
                     ajax.post('/home/Get{{tableName}}List', JSON.stringify(this.{{tableName}}Query)).then((res) => {
                         this.{{tableName}}TableLoading = false;
@@ -234,16 +244,6 @@ export default {
 
 }
 
-function getElementTop(element) {
-    var actualTop = element.offsetTop;
-    var current = element.offsetParent;
-
-    while (current !== null) {
-        actualTop += current.offsetTop;
-        current = current.offsetParent;
-    }
-    return actualTop;
-}
 </script>
 
  <style>
