@@ -12,5 +12,4 @@
     <PackageReference Include="ServiceStack.OrmLite.MySql.Core" Version="5.9.2" />
     <PackageReference Include="ServiceStack.OrmLite.SqlServer.Core" Version="5.9.2" />
   </ItemGroup>
-
 </Project>

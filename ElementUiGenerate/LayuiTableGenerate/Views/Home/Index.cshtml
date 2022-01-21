@@ -3,7 +3,7 @@
 }
 @model LayuiTableGenerate.Classes.DbSetting
 <head>
-    <link href="~/lib/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/lib/layui/css/layui.css" rel="stylesheet"/>
     <script src="~/lib/jquery/dist/jquery.js"></script>
     <script src="~/js/xm-select.js"></script>
     <script src="~/lib/layui/layui.js"></script>
@@ -30,23 +30,23 @@
         <div class="layui-input-block">
             <select name="dbType" lay-verify="required">
                 <option value=""></option>
-                @if (Model!=null) 
+                @if (Model != null)
                 {
-                    if (Model.DbType==0)
+                    if (Model.DbType == 0)
                     {
-                        <option  Selected  value="0">mysql</option>
-                        <option   value="1">sqlserver</option>
+                        <option Selected value="0">mysql</option>
+                        <option value="1">sqlserver</option>
                     }
-                    if (Model.DbType==1)
+                    if (Model.DbType == 1)
                     {
-                        <option    value="0">mysql</option>
-                        <option  Selected value="1">sqlserver</option>
+                        <option value="0">mysql</option>
+                        <option Selected value="1">sqlserver</option>
                     }
                 }
                 else
                 {
-                    <option    value="0">mysql</option>
-                    <option  Selected  value="1">sqlserver</option>
+                    <option value="0">mysql</option>
+                    <option Selected value="1">sqlserver</option>
                 }
             </select>
         </div>
@@ -54,7 +54,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label">连接字符串</label>
         <div class="layui-input-block">
-            <input type="text" name="dbCon" required lay-verify="required" placeholder="请输入标题" value="@(Model==null?"Server=10.0.0.201;database=AGSoft_Test;uid=sa;pwd=agsoft314159;":Model.DbConnectionString)" autocomplete="off" class="layui-input">
+            <input type="text" name="dbCon" required lay-verify="required" placeholder="请输入标题" value="@(Model == null ? "Server=10.0.0.201;database=AGSoft_Test;uid=sa;pwd=agsoft314159;" : Model.DbConnectionString)" autocomplete="off" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
@@ -97,18 +97,18 @@
 </div>
 
 <script type="text/html" id="InputFormCheckbox">
-    <input type="checkbox" name="InputForm" value="{{d.InputForm}}" lay-skin="switch" lay-text="on|off" title="启用" lay-filter="enableInputForm" {{ d.InputForm == false ? '' :'checked'  }}>
+    <input type="checkbox" name="InputForm" value="{{d.InputForm}}" lay-skin="switch" lay-text="on|off" title="启用" lay-filter="enableInputForm" {{ d.InputForm== false ? '' :'checked' }}>
 </script>
 <script type="text/html" id="SearchFormCheckbox">
-    <input type="checkbox" name="SearchForm" value="{{d.SearchForm}}" lay-skin="switch" lay-text="on|off" title="启用" lay-filter="enableSearchForm" {{ d.SearchForm == false ?'':'checked' }}>
+    <input type="checkbox" name="SearchForm" value="{{d.SearchForm}}" lay-skin="switch" lay-text="on|off" title="启用" lay-filter="enableSearchForm" {{ d.SearchForm== false ?'':'checked' }}>
 </script>
 <script type="text/html" id="ShowInTableForm">
-    <input type="checkbox" name="SearchForm" value="{{d.ShowInTable}}" lay-skin="switch" lay-text="on|off" title="启用" lay-filter="ShowInTableForm" {{ d.ShowInTable == false ?'':'checked' }}>
+    <input type="checkbox" name="SearchForm" value="{{d.ShowInTable}}" lay-skin="switch" lay-text="on|off" title="启用" lay-filter="ShowInTableForm" {{ d.ShowInTable== false ?'':'checked' }}>
 </script>
 <script type="text/html" id="InputType">
     <select name="InputType" value="{{d.InputType}}" lay-filter="typeForm">
         <option selected="selected" value="">请选择</option>
-        <option value="@LayuiTableGenerate.Enum.FormInputType.Date.ToString()" >Date</option>
+        <option value="@LayuiTableGenerate.Enum.FormInputType.Date.ToString()">Date</option>
         <option value="@LayuiTableGenerate.Enum.FormInputType.Input.ToString()">Input</option>
         <option value="@LayuiTableGenerate.Enum.FormInputType.Option.ToString()">Option</option>
     </select>
@@ -268,6 +268,7 @@
             }
             $.ajax({
                 url: "/VueElementUi/CreatePageCode?tableName=" + tableName,
+                //url: "/home/CreateUseJsVuePage?tableName=" + tableName,
                 type: 'POST',
                 dataType: 'json',
                 data: "columns=" +JSON.stringify(layui.table.cache.tableSetting),
