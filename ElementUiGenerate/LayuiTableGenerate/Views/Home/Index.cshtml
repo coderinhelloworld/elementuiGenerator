@@ -52,6 +52,15 @@
         </div>
     </div>
     <div class="layui-form-item">
+        <label class="layui-form-label">前端框架类型</label>
+        <div class="layui-input-block">
+            <select name="UIType" id="UIType" lay-verify="required">
+                        <option value="0">ElementUI</option>
+                        <option Selected value="1">LayUI</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
         <label class="layui-form-label">连接字符串</label>
         <div class="layui-input-block">
             <input type="text" name="dbCon" required lay-verify="required" placeholder="请输入标题" value="@(Model == null ? "Server=10.0.0.201;database=AGSoft_Test;uid=sa;pwd=agsoft314159;" : Model.DbConnectionString)" autocomplete="off" class="layui-input">
@@ -266,8 +275,13 @@
             if (tableName=="") {
                 tableName = document.getElementsByName("dbTable")[0].value;
             }
+            var apiUrl = "/VueElementUi/CreatePageCode?tableName=";
+            debugger;
+            if ($("#UIType").val()==='1') {
+                apiUrl = "/Home/CreateLayUIHtml?tableName=";
+            }
             $.ajax({
-                url: "/VueElementUi/CreatePageCode?tableName=" + tableName,
+                url: apiUrl + tableName,
                 //url: "/home/CreateUseJsVuePage?tableName=" + tableName,
                 type: 'POST',
                 dataType: 'json',

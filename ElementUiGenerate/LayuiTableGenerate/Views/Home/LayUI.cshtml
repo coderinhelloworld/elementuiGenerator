@@ -1,0 +1,195 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml'>
+<head>
+    <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+
+    <link href='~/lib/layui/css/layui.css' rel='stylesheet' />
+
+    <script src='~/lib/jquery/dist/jquery.js'></script>
+
+    <script src='~/lib/layui/layui.js'></script>
+    <script src='~/js/xm-select.js'></script>
+</head>
+<body style='padding: 20px'>
+
+    <fieldset class='layui-elem-field'>
+        <legend>搜索</legend>
+        <div class='layui-field-box'>
+            <form id='dataSerarch' class='layui-form' lay-filter='dataSerarch'>
+                <div class='layui-form-item'>
+
+                    <div class='layui-inline'>
+                        <label class='layui-form-label'>搜索内容</label>
+                        <div class='layui-input-inline'>
+                            <input type='text' name='searchKey' id='searchKey' placeholder='' autocomplete='off' class='layui-input'>
+                        </div>
+                    </div>
+
+                    <div class='layui-inline searchData'>
+                        <button class='layui-btn' type='button' lay-submit lay-filter='dataSerarch' data-type='reload' function='query'><i class='layui-icon'></i>查询</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </fieldset>
+
+    <script type='text/html' id='headToolBar'>
+        <div class='layui-btn-container'>
+            <button class='layui-btn layui-btn-sm' lay-event='add'><i class='layui-icon'>&#xe624</i>新增</button>
+        </div>
+    </script>
+    <div class='col-md-12'>
+        <table id='productProsAndCons' lay-filter='productProsAndCons'></table>
+    </div>
+
+    <script type='text/html' id='endToolBar'>
+        <a class='layui-btn layui-btn-xs' lay-event='edit'>编辑</a>
+        <a class='layui-btn layui-btn-danger layui-btn-xs' lay-event='del'>删除</a>
+    </script>
+
+    <div id='productProsAndConsParamsLayer' style='display: none; padding: 20px'>
+        <form id='productProsAndConsInputForm' class='layui-form' lay-filter='productProsAndConsInputForm'>
+            <div class='layui-form-item'>
+                <label class='layui-form-label'>ProductId</label>
+                <div class='layui-input-block'>
+                    <input type='text' name='productId' placeholder='请输入' required lay-verify='required' autocomplete='off' class='layui-input'>
+                </div>
+            </div><div class='layui-form-item'>
+                <label class='layui-form-label'>Id</label>
+                <div class='layui-input-block'>
+                    <input type='text' name='id' placeholder='请输入' required lay-verify='required' autocomplete='off' class='layui-input'>
+                </div>
+            </div><div class='layui-form-item'>
+                <label class='layui-form-label'>0为缺点，1为优点</label>
+                <div class='layui-input-block'>
+                    <input type='text' name='typeCode' placeholder='请输入' required lay-verify='required' autocomplete='off' class='layui-input'>
+                </div>
+            </div><div class='layui-form-item'>
+                <label class='layui-form-label'>Value</label>
+                <div class='layui-input-block'>
+                    <input type='text' name='value' placeholder='请输入' required lay-verify='required' autocomplete='off' class='layui-input'>
+                </div>
+            </div><div class='layui-form-item'>
+                <div class='layui-input-block'>
+                    <button class='layui-btn' lay-submit lay-filter='productProsAndConsSubmitFormButton'>提交</button>
+                    <button type='reset' id='resetButton' class='layui-btn layui-btn-primary resetButton'>重置</button>
+                </div>
+            </div>
+            <div class='layui-form-item' style='display: none'>
+                <div class='layui-input-block'>
+                    <input type='text' id='Id' name='Id' value='0' autocomplete='off' class='layui-input'>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        layui.use(['form', 'table'], function () {
+            var form = layui.form, table = layui.table;
+            table.render({
+                elem: '#productProsAndCons'
+                , height: 600
+                , url: '/productProsAndCons/List'
+                , cellMinWidth: 80
+                , page: true
+                , limit: 10
+                , cols: [[
+                    { type: 'checkbox' }
+, { field: 'productId', title: 'ProductId' }
+, { field: 'id', title: 'Id' }
+, { field: 'typeCode', title: '0为缺点，1为优点' }
+, { field: 'value', title: 'Value' }
+, { fixed: 'right', align: 'center', toolbar: '#endToolBar' }
+                ]]
+                , toolbar: '#headToolBar'
+            });
+            table.on('toolbar(productProsAndCons)', function (obj) {
+                switch (obj.event) {
+                    case 'add':
+                        productProsAndConsSettingLayer();
+                        break;
+                };
+            });
+            table.on('tool(productProsAndCons)', function (obj) {
+                var data = obj.data;
+                switch (obj.event) {
+                    case 'edit':
+                        productProsAndConsSettingLayer();
+                        layui.form.val('productProsAndConsInputForm', {
+                            Id: data.Id,
+                            CategoryName: data.CategoryName,
+                            SortNo: data.SortNo,
+                        }); break;
+                    case 'del':
+                        layer.confirm('真的删除行么', function (index) {
+                            obj.del();
+                            layer.close(index);
+                            $.ajax({
+                                url: '/productProsAndCons/Delelte',
+                                data: data,
+                                success: function (res) {
+                                    layer.msg('保存成功', { icon: 1 });
+                                    table.reload('productProsAndCons');
+                                },
+                                error: function () {
+                                    layer.msg('失败', { icon: 2 });
+                                    layer.close(loading);
+                                }
+                            })
+                        }); break;
+                    default: break;
+                }
+            });
+            form.on('submit(productProsAndConsSubmitFormButton)', function (data) {
+                var loading = layer.load(0);
+                $.ajax({
+                    url: '/productProsAndCons/Set',
+                    data: data.field,
+                    success: function (res) {
+                        layer.close(settingLayerIndex);
+                        layer.msg('保存成功', { icon: 1 });
+                        layui.table.reload('productProsAndCons');
+                        $('#productProsAndConsInputForm')[0].reset();
+                        layui.form.render();
+                        layer.close(loading);
+                    },
+                    error: function() {
+                        layer.msg('失败', { icon: 2 });
+                        layer.close(loading);
+                    }
+                })
+                return false;
+            });
+            form.on('submit(dataSerarch)', function (data) {
+                var loading = layer.load(0);
+                table.reload('productProsAndCons', {
+                    page: {curr: 1  }
+                    , where: {searchKey: data.field }
+                }, 'data');
+                layer.close(loading);
+                return false;
+            });
+
+        });
+        var settingLayerIndex;
+        function productProsAndConsSettingLayer() {
+            settingLayerIndex = layer.open({
+                area: '1024px',
+                type: 1,
+                shade: [0.8, '#393D49'],
+                title: '类别' + '设置',
+                content: $('#productProsAndConsParamsLayer'),
+                cancel: function () {
+                    $('#productProsAndConsInputForm')[0].reset();
+                    layui.form.render();
+                }
+                , btn: false
+            });
+        }
+    </script>
+</body>
+</html>

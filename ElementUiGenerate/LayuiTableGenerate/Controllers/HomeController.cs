@@ -25,6 +25,12 @@ namespace LayuiTableGenerate.Controllers
             _logger = logger;
         }
 
+        public IActionResult Layui()
+        {
+
+            return View();
+        }
+
         public IActionResult Index()
         {
             var dbSettingString = GetDbSetting();
@@ -37,35 +43,7 @@ namespace LayuiTableGenerate.Controllers
             return View();
         }
 
-        public IActionResult Test2()
-        {
-            var list = GetDataBaseHelper.GetMenuList();
-            var page = new LayuiPage
-            {
-                Body = "",
-            };
-            return View();
-        }
 
-        public IActionResult Test()
-        {
-            var list = GetDataBaseHelper.GetMenuList();
-            var page = new LayuiPage
-            {
-                Body = "",
-            };
-            return View();
-        }
-
-        public IActionResult ElementUITemplate()
-        {
-            var list = GetDataBaseHelper.GetMenuList();
-            var page = new LayuiPage
-            {
-                Body = "",
-            };
-            return View();
-        }
 
         public IActionResult SaveSetting(string columns, string tableName)
         {
@@ -503,9 +481,13 @@ namespace LayuiTableGenerate.Controllers
 
 
         //创建Layui表单
-        public IActionResult createTable(int dbType, string dbCon, string dbTable)
+        public IActionResult CreateLayUIHtml(string columns, string tableName)
         {
-            var columnList = GetDataBaseHelper.GetColumnList(dbType, dbCon, dbTable);
+            //var columnList = GetDataBaseHelper.GetColumnList(dbType, dbCon, dbTable);
+            tableName = tableName.Substring(0, 1).ToLower() + tableName.Substring(1);
+            var dbTable = tableName;
+            var columnList = JsonConvert.DeserializeObject<List<column>>(columns);
+
             var formItem = "";
             string colsFields = "";
 
@@ -527,7 +509,7 @@ namespace LayuiTableGenerate.Controllers
             }
 
 
-            var tableName = $"{dbTable}Table";
+            //var tableName = $"{dbTable}Table";
             var tableParamsLayer = $"{dbTable}ParamsLayer";
             var tableInputForm = $"{dbTable}InputForm";
             var submitFormButton = $"{dbTable}SubmitFormButton";
@@ -734,12 +716,6 @@ namespace LayuiTableGenerate.Controllers
             return View();
         }
 
-        public IActionResult KnowledgeTypeList()
-        {
-            var list = GetDataBaseHelper.GetKnowledgeTypeList();
-            return Json(new { code = 0, msg = "", count = 20, data = list });
-        }
-
         public class Query
         {
             public string datePeriod { get; set; }
@@ -748,43 +724,10 @@ namespace LayuiTableGenerate.Controllers
             public string shopMarket { get; set; }
         }
 
-        [HttpPost]
-        public IActionResult GetMenuList([FromBody] Query data)
-        {
-            var list = GetDataBaseHelper.GetMenuList();
-            return Json(new { code = 0, msg = "", count = 20, data = list });
-        }
-
         public class Request
         {
             public int id { get; set; }
             public string title { get; set; }
-        }
-
-        [HttpPost]
-        public IActionResult AddOrUpdateMenu([FromBody] Request Request)
-        {
-            var list = GetDataBaseHelper.GetMenuList();
-            return Json(new { code = 0, msg = "", count = 20, data = list });
-        }
-
-        [HttpPost]
-        public IActionResult DeleteMenu([FromBody] Request Request)
-        {
-            var list = GetDataBaseHelper.GetMenuList();
-            return Json(new { code = 0, msg = "", count = 20, data = list });
-        }
-
-        public IActionResult SetKnowledgeType(Knowledgetype knowledgetype)
-        {
-            var list = GetDataBaseHelper.SetKnowledgeTypeList(knowledgetype);
-            return Json(list);
-        }
-
-        public IActionResult DelelteKnowledgeType(Knowledgetype knowledgetype)
-        {
-            GetDataBaseHelper.DelelteKnowledgeType(knowledgetype);
-            return Json("");
         }
 
         public IActionResult GetTableName(int dbType, string dbCon, string dbTable)

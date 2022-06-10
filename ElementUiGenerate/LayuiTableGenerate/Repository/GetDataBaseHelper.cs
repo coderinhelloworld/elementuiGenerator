@@ -95,51 +95,6 @@ namespace LayuiTableGenerate.Repository
 
 
 
-        public static List<Menu> GetMenuList()
-        {
-
-            var dbFactory = new OrmLiteConnectionFactory("Database=AmazonAffiliate;Data Source=8.141.54.190;Port=3306;User Id=root;Password=Mykey1234.;Charset=utf8;TreatTinyAsBoolean=false;", MySqlDialect.Provider);
-            using (var db = dbFactory.Open())
-            {
-                var list = db.Select<Menu>().Where(x => x.ID > 0).ToList();
-                return list;
-            }
-
-        }
-
-
-        public static List<Knowledgetype> GetKnowledgeTypeList()
-        {
-
-            var dbFactory = new OrmLiteConnectionFactory("Server=192.168.0.102;database=ebp;uid=sa;pwd=123456;", SqlServerDialect.Provider);
-            using (var db = dbFactory.Open())
-            {
-                var list = db.Select<Knowledgetype>().Where(x => x.Id > 0).ToList();
-                return list;
-            }
-
-        }
-        public static long SetKnowledgeTypeList(Knowledgetype knowledgetype)
-        {
-            var dbFactory = new OrmLiteConnectionFactory("Server=192.168.0.102;database=ebp;uid=sa;pwd=123456;", SqlServerDialect.Provider);
-            using (var db = dbFactory.Open())
-            {
-                var list = knowledgetype.Id==0?db.Insert(knowledgetype):db.UpdateNonDefaults(knowledgetype,x=>x.Id==knowledgetype.Id);       
-                return list;
-            }
-
-        }
-
-        public static void  DelelteKnowledgeType(Knowledgetype knowledgetype)
-        {
-            var dbFactory = new OrmLiteConnectionFactory("Server=192.168.0.102;database=ebp;uid=sa;pwd=123456;", SqlServerDialect.Provider);
-            using (var db = dbFactory.Open())
-            {
-                var list =db.Delete(knowledgetype);
-
-            }
-
-        }
 
     }
 }
