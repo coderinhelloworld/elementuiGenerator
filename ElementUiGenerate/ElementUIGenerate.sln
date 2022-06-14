@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30517.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LayUI_ELEMENTUI_Html_Generate", "LayuiTableGenerate\LayUI_ELEMENTUI_Html_Generate.csproj", "{8C00197B-C865-46C8-A589-A5058AF05FE0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Html_Generate", "LayuiTableGenerate\Html_Generate.csproj", "{8C00197B-C865-46C8-A589-A5058AF05FE0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

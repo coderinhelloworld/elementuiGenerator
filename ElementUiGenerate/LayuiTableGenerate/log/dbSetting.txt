@@ -1,1 +1,1 @@
-{"DbType":0,"DbConnectionString":"Database=AmazonAffiliate;Data Source=8.141.54.190;Port=3306;User Id=root;Password=Mykey1234.;Charset=utf8;TreatTinyAsBoolean=false;"}
+{"DbType":1,"DbConnectionString":"Data Source=.;Initial Catalog=Test;User Id= ;Password= ;Integrated Security=true;"}
